@@ -1,5 +1,14 @@
 **Light curves & detrending workgroup at #exosamsi**
 
+
+Information
+-----------
+
+**Room** 219
+
+**Office Hours** 9am
+
+
 Members
 -------
 
