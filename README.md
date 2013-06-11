@@ -16,6 +16,7 @@ Members
 * [David W. Hogg](https://github.com/davidwhogg)
 * [Paul Baines](https://github.com/pdbaines)
 * [Hannu Parviainen](https://github.com/hpparvi)
+* [Jessie Christiansen](https://github.com/jessielchristiansen)
 * Your name here…
 
 
