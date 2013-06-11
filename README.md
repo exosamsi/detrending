@@ -18,6 +18,7 @@ Members
 * [Hannu Parviainen](https://github.com/hpparvi)
 * [Billy Quarles](https://github.com/saturnaxis)
 * [Bekki Dawson](https://github.com/dawsonri)
+* [Jessie Christiansen](https://github.com/jessielchristiansen)
 * Your name here…
 
 
