@@ -6,6 +6,7 @@ Members
 * [Dan Foreman-Mackey](https://github.com/dfm)
 * [David W. Hogg](https://github.com/davidwhogg)
 * [Paul Baines](https://github.com/pdbaines)
+* [Hannu Parviainen](https://github.com/hpparvi)
 * Your name here…
 
 
