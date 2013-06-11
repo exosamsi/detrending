@@ -16,6 +16,7 @@ Members
 * [David W. Hogg](https://github.com/davidwhogg)
 * [Paul Baines](https://github.com/pdbaines)
 * [Hannu Parviainen](https://github.com/hpparvi)
+* [Bekki Dawson](https://github.com/dawsonri)
 * Your name here…
 
 
