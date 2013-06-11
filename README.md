@@ -1,1 +1,1 @@
-Light curves & detrending workgroup at #exosamsi
+**Light curves & detrending workgroup at #exosamsi**
