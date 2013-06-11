@@ -17,6 +17,7 @@ Members
 * [Paul Baines](https://github.com/pdbaines)
 * [Hannu Parviainen](https://github.com/hpparvi)
 * [Billy Quarles](https://github.com/saturnaxis)
+* [Bekki Dawson](https://github.com/dawsonri)
 * Your name here…
 
 
