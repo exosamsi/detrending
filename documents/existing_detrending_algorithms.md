@@ -23,6 +23,6 @@ light curves with different effective temperatures and flux modulations, and we
 found that Gaussian Processes-based techniques can very effectively correct the
 instrumental systematics along with the long-term stellar activity. Our method
 can disentangle astrophysical features (events), such as planetary transits, flares
-or general sudden variations in the intensity, from the star signal and it is very ef-
-ﬁcient as it requires only a few training iterations of the Gaussian Process model." Doesn't seem to be available online.
+or general sudden variations in the intensity, from the star signal and it is very efficient as it 
+requires only a few training iterations of the Gaussian Process model." Doesn't seem to be available online.
 7.Others...?
