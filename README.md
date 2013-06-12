@@ -19,7 +19,7 @@ Members
 * [Billy Quarles](https://github.com/saturnaxis)
 * [Bekki Dawson](https://github.com/dawsonri)
 * [Jessie Christiansen](https://github.com/jessielchristiansen)
-* Your name here…
+* [Robert Wolpert](https://github.com/rwolpert)
 
 
 How to join the exosami organization
