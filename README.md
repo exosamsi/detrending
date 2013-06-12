@@ -20,6 +20,8 @@ Members
 * [Bekki Dawson](https://github.com/dawsonri)
 * [Jessie Christiansen](https://github.com/jessielchristiansen)
 * [Robert Wolpert](https://github.com/rwolpert)
+* [Ben Montet](https://github.com/benmontet)
+* Your name here…
 
 
 How to join the exosami organization
