@@ -17,4 +17,12 @@ assemble a list here with links and make sure that we can run all of them.
    to be available online, I'll ping him and see if he can make it available to us.
 6. A control algorithm, using a median filter/low-order polynomial fit on chunks of data? This is what Fabrycky+ 
    does in [TTV:IV](http://astro.uchicago.edu/~fabrycky/kepler/ttvconfirm/ttvs_fabrycky.pdf)
-7. Others...?
+7. The method of [Danielski+](http://arxiv.org/pdf/1304.6673v1.pdf): "We have explored here the
+possibility of using non-parametric methods to analyse the Simple Aperture Photometry data observed by the Kepler mission. We focused on a sample of stellar
+light curves with different effective temperatures and flux modulations, and we
+found that Gaussian Processes-based techniques can very effectively correct the
+instrumental systematics along with the long-term stellar activity. Our method
+can disentangle astrophysical features (events), such as planetary transits, flares
+or general sudden variations in the intensity, from the star signal and it is very ef-
+ﬁcient as it requires only a few training iterations of the Gaussian Process model." Doesn't seem to be available online.
+7.Others...?
