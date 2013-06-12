@@ -22,6 +22,7 @@ Members
 * [Robert Wolpert](https://github.com/rwolpert)
 * [Ben Montet](https://github.com/benmontet)
 * [Tom Barclay](https://github.com/mrtommyb)
+* [Someone]
 * Your name here…
 
 
