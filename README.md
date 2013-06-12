@@ -21,6 +21,7 @@ Members
 * [Jessie Christiansen](https://github.com/jessielchristiansen)
 * [Robert Wolpert](https://github.com/rwolpert)
 * [Ben Montet](https://github.com/benmontet)
+* [Tom Barclay](https://github.com/mrtommyb)
 * Your name here…
 
 
