@@ -25,4 +25,5 @@ instrumental systematics along with the long-term stellar activity. Our method
 can disentangle astrophysical features (events), such as planetary transits, flares
 or general sudden variations in the intensity, from the star signal and it is very efficient as it 
 requires only a few training iterations of the Gaussian Process model." Doesn't seem to be available online.
-7.Others...?
+
+8. Others...?
