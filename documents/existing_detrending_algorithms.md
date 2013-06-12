@@ -25,5 +25,10 @@ instrumental systematics along with the long-term stellar activity. Our method
 can disentangle astrophysical features (events), such as planetary transits, flares
 or general sudden variations in the intensity, from the star signal and it is very efficient as it 
 requires only a few training iterations of the Gaussian Process model." Doesn't seem to be available online.
-
-8. Others...?
+8. The method of [Waldmann](http://arxiv.org/abs/1302.6714): "Here we present a novel approach to calibrate independent component
+   analysis using sparse wavelet calibrators. The Amplitude Calibrated Independent Component Analysis (ACICA) 
+   allows for the direct retrieval of the independent components' scalings and the robust de-trending of low 
+   S/N data. Such an approach gives us an unique and unprecedented insight in the underlying morphology of a 
+   data set, making this method a powerful tool for exoplanetary data de-trending and signal diagnostics." Again,
+   no code, but the algorithm is precisely described.
+9. Others...?
