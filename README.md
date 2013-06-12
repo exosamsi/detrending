@@ -41,3 +41,24 @@ Alternatively, if you want to have more fun with git+GitHub:
 * Then submit a pull request:
 
 ![](https://raw.github.com/exosamsi/detrending/master/pull.png)
+
+
+How to contribute to the repository
+-----------------------------------
+
+Once you're a member of the organization, you should be able to push to the
+main repository. To do this, you can clone the main repository by running:
+
+```
+git clone https://github.com/exosamsi/detrending.git
+```
+
+or, if you already have a checked out copy, you can point it at the main
+repository by running:
+
+```
+git remote set-url origin https://github.com/exosamsi/detrending.git
+```
+
+In this step, `origin` is the *name* of the remote. `origin` is what git
+called the repository that you originally cloned.
