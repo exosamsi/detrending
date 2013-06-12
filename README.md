@@ -19,6 +19,7 @@ Members
 * [Billy Quarles](https://github.com/saturnaxis)
 * [Bekki Dawson](https://github.com/dawsonri)
 * [Jessie Christiansen](https://github.com/jessielchristiansen)
+* [Ben Montet](https://github.com/benmontet)
 * Your name here…
 
 
