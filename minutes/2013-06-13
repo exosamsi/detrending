@@ -1,0 +1,238 @@
+David Hoggs' (DH) proposal for agenda:
+1. Check scope
+2. Sandbox status
+3. Likelihood function, to build a probabilistic and good model of the Kepler data
+Effects, i.e. categories of effects
+4. Noise visuals
+
+Plans for Friday (8/14):
+1. Sandbox
+2. Run tools
+3. Visualize
+
+Produce a likelihood by 8/21
+
+Earth-like planets by 8/28
+Tom Barclay (TB): We should think about how to SEARCH for Earth-like planets.
+David Hoggs (DH): There is no such thing as "searching" in probabilistic inference. Can we do detrending and fitting as separate steps? It depends on whether we're producing point estimates or probability.
+
+SANDBOX (Jessie Christiansen -- JC)
+Sky group 27, which is a quiet and well-focused channel with no artifacts. It contains Kepler 37.
+JC: We have 80 channels, which rotate every three months; each channel is on four groups of stars over the year.
+
+JC: Has Kepler 37. Sky group 27, which is . We have 80 channels. They rotate every three months. Each channel is on four groups of stars over the year. Each sky group is a group of stars spatially closed to each other. They experience the four CCDs. 1800 targets. 41 planet candidates, no long ones. Do you want pixels, co-trended flux, etc.? Where (on github?).
+
+DH: Chose a couple targets as poster children. Which languages are people working in?
+
+(Audience answers with a large variety, with big python contingent.)
+
+Ruth Angus (RA): kplr is working
+
+JC: The data at MAST is the most recent version. Do we want a noisy channel too?
+
+DH: Maybe a group that hits a noisy channel. The worst. Provide criteria that we could use in MAST to generate the objects.
+A. Instructions of how to install kplr and run to get objects
+B. Run and produce some other format for data and put it somewhere local. In ASCII format and python format.
+
+JC will inject some planets; she will produce both pixels and light curves.
+
+Paul Baines (PB) proposed work at light curve level because working at the pixel level would add more learning.
+
+Andre Psas (AP): Jessie made point that SNR per pixel is high.
+
+TB: Working a light curve level means stacking pixel.
+
+DH: That would not kill a kitten but maybe a mouse.
+
+JC: The fits files have all the pixels that were downloaded. Cosmic rays are flagged.
+
+DH: People would like to do centroid test. We should build a visualizer.
+
+TB: The fits file have flux but sometimes it's useless.
+
+DH: Let's work at light curve level.
+
+1. Poster children
+2. Statistically representative sample of stars
+3. A few injections (sanity check); Earth-like and periods > 370 days
+
+TB: The lightcurve files don't just have time and brightness. 
+
+DH: The pipeline is producing flux, times, housing data, etc. and the LHF could be modeling all of it.
+
+TB: Years of work went into the engineering data and it was a disaster. Literally millions of dollar. It failed. It didn't remove instrumental signals and injected others. We look at how all stars in ensemble change. 
+
+DH: The PCA amplitudes are latent variables.
+
+Tom Loredo (TL): But I saw at AAS how the light curves are correlated with temperature.
+
+JC: You take out trends but increase noise. We tried smoothing and resampling but using light curves works better.
+
+DH: If we wanted to figure out temperature we could but it's not of interest. We could use the pixels to use the CCD as a temperature.
+
+Jim Berger (JB): That would be interesting.
+
+WHAT'S IN THE LIGHTCURVE FILES (Tom Barclay)
+
+TB: This is the flux time series in units of electron per second, for a quarter; 30 minute integrations. We have a crude estimate of the uncertainty. The overall wiggliness is probably from star spots. The overall trend is likely instrumental and some instrumental noise on a 3 day timescale.  The overall trend is correlated with the correction for barycentric time, suggesting it is caused by motion of the spacecraft.
+
+JC: It's mostly the shot noise; electrons per second.
+
+TL: Is there variation in the gain?
+
+TB: I don't think so.
+
+JC: We work out which pixels to use algorithmically. Which pixels will contribute most to the SNR. We add pixels until the SNR starts to decrease.
+
+TL: Cosmic rays?
+
+TB: They are identified and flagged. The pipeline tries to correct for cosmic rays by using pixels nearby. You can see gaps every month when the spacecraft is pointed back to earth to download data. The spacecraft cools, creating ramps.
+
+JC: It depends on the temperature.
+
+Darin Ragozzine (DR): You might want to cut out a LARGER area near the gap. You lose a small fraction of data and decrease the false positives. 
+
+JC: The gap corrections flatten transits.
+
+TB: We take many six second integrations onboard and they're co-added on board. There's a 0.5 second read-out time.
+
+Bekki Dawson (BD): That affects the integrated light curve model.
+
+DR: I looked and it's not a big effect.
+
+DR: You can use even if saturated.
+
+TB: The bleed trail is enormous.
+
+RA: You add up all the pixels are saturated.
+
+DH: The range of the electrons per second is not huge.
+
+JC: It's about 1%.
+
+DH: A lot of the effects we care about can be linearized. We can multiplicative effects as additive. 
+
+PBl: What is the reported error and does anyone use it?
+
+DH: Poisson noise. 
+Nelectrons: Nelectron_Star + Nelecton_background + Read noise
+So variance is : Nelectron_Star + Nelecton_background + sigma_read^2
+Sigma_read may depend on temperature, position, etc.
+That's the variance that they report.
+
+TB: [Shows a short transit with only a few points per transit. ] This is the background level that is subtracted. Don't use raw. It's being background subtracted. We have a series of two pixels all over the CD. We fit an eight order two-d polynomial. 
+
+AP: 60% stars in binaries. 1/4 of these binaries have lines that show doppler shift. Not necessary photometrically variable (if period longer than 20 days). If the aren't eclipsing they won't do much. They will cause the properties of planets to be mismeasured.
+
+JC: I will post a paper describing a background.
+
+Tom: (showing the PDC) The PCA tried to correct but it didn't entirely work. We still see ramps. Some are due to safe modes (long gaps). You take 50% of least variable star. They take PCA and split them into five frequency bands. Each frequency band is fit separately. They do wavelet transforms of the data and the basic vectors. They are regularized to be similar to stars nearby.  
+
+DH: They fit to it linearly and then divide it out. They assume that the wiggles are multiplicative. 
+
+DR: If they are added and multiplicative, they aren't separating. 
+
+Mary Beth Broadbent (MBB): There's also the Petigura paper.
+
+TB: We see step function decrease and gradual rise after cosmic ray hit. The timescale is about a few hours or up to a day.
+
+JC: Sometimes the pixel sensitivity is permanently degraded. It's about a 1% change on one pixel. The flat field taken on the ground is out of date because this keeps happening. It's been discussed whether it's even worth flat-fielding, those vignetting and other large scale variations are still correct.
+
+DR: They look a lot like transits, but is asymmetric. But it's hard to see difference in low signal to noise.
+
+JC: There's a column of quality flags with different bits. It's one of the bits: spsd (sudden pixel sensitivity drop).
+
+TB: You should see it clearly because only one pixel is affected; good to work at the pixel level. [Shows us the quality flags.]
+
+JC: There's about ten flags. It's in the data release notes.
+
+TB: There's a predicted and measured position of the star in row and column. 
+
+JC: We use 200 bright stars to predict the RA/DEC of the KIC stars. But some have large proper motion. 
+
+DH: In gross this accounts for the breathing of the pixel/astrometric map. But there are small changes and excursions.
+
+JC: It accounts for the spacecraft motion and temperature.
+
+TB: The star gets fainter when there's a transit, so the center of light moves. 
+
+TB: You see a wiggle on a three day timescale.
+
+DH: It's caused by the reaction wheels bleeding off angular momentum to a jet. It shows up in the bitmap flags. THAT meta data seems reliable. Sometimes the effect is large and sometimes not.
+
+TB: It depends on whether the star is at the edge of the pixel mask.
+
+DH: It also depends on which wheel and configuration of wheels/jets.
+
+TB (shows position of star in RA vs DEC): Photocenter gets draped away during transits.
+
+Ben Montet BM: You can see the thermal effects really well in the position data.
+
+DH: Darrin mentioned fitting additive and multiplicative effects separately. But it's hard for a quiet G star because the effects are so small. Maybe we can treat everything as additive but if we did want to separate then the best star would be a variable one because we'd see the effects imprint differently. Or we could just look at the quiet stars and model it as additive.
+
+TL: This is what I meant yesterday about injections not just low signal to noise. If we put things in at high signal to noise we can test if we can recover it accurately. 
+
+DH: A plot by DFM: light curve and histogram of values. Second row, Kepler PDC. And here's untrendy. This is under visualization on github. Untrendy: Fits a spline and looks for change points. PDC is only taking out instrumental things. But untrendy is more brutal. 3 day knots. We're not capturing the 3-day heartbeat. The thrust events are marked in the data. 
+
+DH: BM is building a list of existing things. Try to figure out why they are different and run them in the sandbox.
+BM: Almost every technique is represented in the literature
+
+PB: I'm going to write some equations. We observe:
+Y(t) = [f(t) + 1] epsilon(t) during transits
+Y'(t) = epsilon(t) out of transit
+What goes into epsilon(t)?
+spacecraft 
+astrophysical: star, background
+
+DH: Astronomers don't have generative probabilistic models for the variability of stars. We should write down what we OUGHT to do and then scale back to what we can do.
+
+JB: I like understanding what you're trying to approximate and understand cost/benefit.
+
+PB: If they're additive we can separate into epsilon1 + epsilon2 + epsiolon3
+
+TL: If there are periods we know about, we should build models that look for them specifically
+
+DH: Many effects are approximately periodic. And there a indicators in the meta data. The centroid information may be valuable.
+
+TB: It's a flux weighted centroid, so other stars could be pulling the center.
+
+TB: Are we doing each target independently or population?
+
+Paul: Go away from pixel data and joint model of light curves
+
+TL: We can formalize with a partially exchangeable hierarchical model. Instrumental aspects.
+
+TH: We can do a factor analysis on all light curves and use the range of coefficients for all light curves.
+
+PB: Some components could be independent and others could be linked across stars.
+
+TL: A strawman version. 
+Y(t) = [1 + alpha(t)] [1+Beta(t)]S(t)  + epsilon(t)
+alpha(t) = transit, LC specific
+B(t) = expanded in some basis, distribution of coefficients across CCD, fit to light curve
+S(t) = stars variable, may be able to learn from other stars of same type, across star types
+epsilon(t) = background
+
+DH: This would linearize well. We could fit various things and then Gaussian processes to residuals. These are the same. 
+
+BM: All stars of a type won't be the same and we don't know the classifications.
+
+DH: Maybe G has similar frequencies.
+
+DR: Just knowing the power spectrum of G stars is three papers.
+
+DH: This is just what we should do, not what we can do. Also, for example, maybe you'd look at the G stars and see you never need splines below a certain timescale. Or we could only look at non-variable stars to de-scope. 
+
+AP: If we have a perfectly periodic unknown signal and some form of noise on top of that, is there an easy way to identify it? You know exactly the period. The idea is rather than thinking of an ensemble think of individual objects that are periodic like variables and eclipsing binaries. Fish those out and whatever remains is instrumental.
+
+DH: That's a way to think to split the additive and multiplicative.
+
+JB: We know some features have periods of 365.25 days that are instrumental 
+
+DH: Explore that there's shared variation across stars. Like look at autocorrelation of G stars and see if there are any commonlations
+
+TB: The whitening algorithm for the pipeline searches.
+
+DH: We need not just the detrending vectors but the distribution of coefficients. The triangle plot of values of coefficients in a set of stars.
+
+TB: pdc removes any trend longer than 10 days
