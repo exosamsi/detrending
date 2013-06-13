@@ -31,4 +31,4 @@ requires only a few training iterations of the Gaussian Process model." Doesn't 
    S/N data. Such an approach gives us an unique and unprecedented insight in the underlying morphology of a 
    data set, making this method a powerful tool for exoplanetary data de-trending and signal diagnostics." Again,
    no code, but the algorithm is precisely described.
-9. The dumb Legendre polynomial fit with sigma-clipping used to detrend eclipsing binary data (Prsa et al. 2011), implemented in the keptools suite freely available from svn.
+9. The dumb Legendre polynomial fit with sigma-clipping used to detrend eclipsing binary data ([Prsa et al. 2011](http://adsabs.harvard.edu/abs/2011AJ....141...83P)), implemented in the [keptools](http://clusty.ast.villanova.edu/svn) suite.
