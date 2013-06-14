@@ -45,7 +45,7 @@ def get_lightcurves(kepid, grp):
 
 
 if __name__ == "__main__":
-    for f in glob.glob("specs/*Ids.txt"):
+    for f in glob.glob("specs/*systematicsIds.txt"):
         grp = f[:-7]
         print("Group: {0}".format(grp))
         for i in open(f):
