@@ -142,7 +142,7 @@ where the elements of $\Sigma_{d}$ are specified constants. Full details of the 
 \end{align*} 
 where 
 \begin{align*}
- \nu_{n} = \nu_{0} + n , \qquad s_{n}^{2} = \frac{n_{0}s_{0}^{2}+(y-f)^{T}(y-f)}{\nu_{n}} .
+ \nu_{n} = \nu_{0} + n , \qquad s_{n}^{2} = \frac{\nu_{0}s_{0}^{2}+(y-f)^{T}(y-f)}{\nu_{n}} .
 \end{align*}
 \item Sampling from $\omega|\psi,f$: This will not be in closed form and other methods (e.g., MH) will be needed. Intuitively, varying $\omega$ given $f$ varies the value of $m(t)$, so values of $\omega$ that yield $m$ to be an appropriate mean for $y$ (given $\psi$) will be favored.
 \item Sampling from $f|d,\omega,\psi,\Sigma^{2}_{w}$: Since,
@@ -174,6 +174,21 @@ where
 Here $n_{j}$ is the number of coefficients in level $j$ of the wavelet decomposition and $w_{j}$ and $d_{j}$ are the subcomponents of $w$ and $d$ corresponding to the wavelet coefficients at level $j$.
 \end{itemize}
 
+\section{Missing Data}
+Handling missing data in the time domain. Straightforward: write up.
+
+\section{Searching for Transits: Finding Candidate Period/Phase Configurations}
+
+\section{Using Metadata to Improve Performance}
+Any ideas?
+
+\section{Model Comparison}
+\begin{itemize}
+\item Ideas to \lq{}test\rq{} for presence of transits
+\item Stellar variability models. 
+\item Spacecraft event models (e.g., sudden pixel dropout)
+\end{itemize}
+
 \end{document} 
 
 
@@ -182,30 +197,3 @@ Here $n_{j}$ is the number of coefficients in level $j$ of the wavelet decomposi
 
 
 
-
-
-
-
-
-
-
-
-
- \begin{align*}
- Y(t|\theta) &= m(t|\omega) + \epsilon(t|\psi) , \qquad \forall \, t \in \mathcal{T} \\
- \log{}m(t|\omega) &= \log{}f(t|\omega)+ \log{}(1-q(t|\omega)) .
- \mathcal{W}\log{}m(t|\omega) &= \mathcal{W}\log{}f(t|\omega)+\mathcal{W}\log{}(1-q(t|\omega)) .
-\end{align*}
-Note that by taking the log transformation we assume that $m$ and $f$ are positive for all $t$ and $q\in{}[0,1)$. In the wavelet domain we have strong 
-
-\begin{align*}
- Y(t|\theta) &= m(t|\omega) + \epsilon(t|\psi) , \qquad \forall \, t \in \mathcal{T} \\
- m(t|\omega) &= f(t|\omega)-q(t|\omega)\right]f(t|\omega) , 
-\end{align*}
-where $f(t|\omega)$ is the underlying intensity if there are no transits i.e., $q(t|\omega)\equiv{}0$ if there are no transits. In the event of a transit we observe a version of $f(t|\omega)$ \lq{}dampened\rq{} by the multiplicative factor $1-q(t|\omega)$. Since we only observe a noisy version of $m(t)$ we seek to express 
-
- \begin{align*}
- Y(t|\theta) &= m(t|\omega) + \epsilon(t|\psi) , \qquad \forall \, t \in \mathcal{T} \\
- \mathcal{W}m(t|\omega) &= \mathcal{W}f(t|\omega)-\mathcal{W}f(t|\omega)q(t|\omega) , 
-\end{align*}
-In the wavelet domain we have strong 
