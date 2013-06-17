@@ -1,13 +1,26 @@
 \documentclass[12pt,letterpaper]{article}
 
+% close up itemize
+\renewenvironment{itemize}{\begin{list}{$\bullet$}{%
+  \setlength{\topsep}{0.0ex}%
+  \setlength{\parsep}{0.0ex}%
+  \setlength{\partopsep}{0.0ex}%
+  \setlength{\itemsep}{0.0ex}%
+  \setlength{\leftmargin}{1.5\parindent}}}{\end{list}}
+
+% text macros
 \newcommand{\warning}[1]{\texttt{#1}}
 \newcommand{\project}[1]{\textsl{#1}}
 \newcommand{\Kepler}{\project{Kepler}}
+
+% math operators
 \newcommand{\dd}{\mathrm{d}}
 \newcommand{\given}{\,|\,}
 \newcommand{\setof}[1]{\left\{{#1}\right\}}
 \newcommand{\transpose}[1]{{#1}^{\mathsf{T}}}
 \newcommand{\elmult}{\ast}
+
+% math macros
 \newcommand{\datum}{Y}
 \newcommand{\data}{\setof{\datum_n}_{n=1}^N}
 \newcommand{\datavec}{y}
@@ -30,7 +43,6 @@
 \newcommand{\weightmatrix}{W}
 \newcommand{\vartensor}{V}
 \newcommand{\onevec}{O}
-
 
 \begin{document}\sloppy\sloppypar
 
@@ -151,10 +163,12 @@ the user either must have evenly spaced, homoskedastic data (all $\variance_n$ i
 or else build a unique, inhomogeneous wavelet basis
 customized to every non-uniform, heteroskedastic data set or time series.
 
-In this linear algebra context, we can write the unmarginalized likelihood (\ref{eq:like}) as
+In this linear algebra context,
+we can write a partially (very partially; see below) marginalized likelihood as:
 \begin{eqnarray}
 p(\datavec\given\exopars,\starpars,\hyperpars)
   &=& \normal(\datavec\given\meanvec,\vartensor)
+\label{eq:wavelike}
 \\
 \meanvec
   &\equiv& \meanflux\,[\onevec - \exovec]
@@ -180,13 +194,42 @@ Another way to put it is that the variance tensor $\vartensor$ is dense,
 but it is made from the two diagonal tensors $\noisetensor$ and $\wavetensor$,
 which are diagonal in different bases.
 
+One note:  Although we refer to the expression in (\ref{eq:wavelike}) as
+a partially marginalized likelihood, it still contains the stellar parameter blob $\starpars$.
+This is because the variances along the diagonal of $\wavetensor$ are parameters of the star model;
+they are specific to the star.
+The partial marginalization has happened over the specific phases or amplitudes of the wavelet components,
+but not over the variances describing the distribution from which they were drawn.
+With an additional prior $p(\wavetensor\given\hyperpars)$,
+the star model can be marginalized out.
+
 In what follows,
 we are going to treat the diagonal data noise variance tensor $\noisetensor$ as known,
 the wavelet basis $\weightmatrix$ as fixed,
 but parameterize and permit to be fit the Gaussian Process variance tensor $\wavetensor$.
 
-\section{\Kepler specifics}
+\section{\Kepler\ specifics}
 
-\warning{hoo haw}
+My proposal---it can't be described as ``our proposal'' just yet---%
+is to do the following violence to the model to keep the core ideas,
+but make it tractable, at the cost of strengthening or distorting some assumptions.
+\begin{itemize}
+\item
+For the purposes of computing the wavelet transformation matrices $\weightmatrix$,
+treat the data as coming homoskedastic on a perfectly equally-spaced grid.
+This will ensure that the $\weightmatrix$ matrices are always unitary.
+This isn't required for inference but will be \emph{sick} for performance.
+\item
+An alternative is to work on the data in month-long segments
+(within which the data \emph{are} very close to  the structure of the
+\item
+At the same time as we treat the data as uniform in cadence and homoskedastic for the purposes
+of the $\weightmatrix$, for the purposes of computing the \emph{exoplanet transits},
+treat the data as coming from the true, non-uniform grid in BJD.
+\item
+At the same time as we treat the data as uniform in cadence and homoskedastic for the purposes
+of the $\weightmatrix$, for the purposes of computing the likelihood function,
+use the heteroskedastic $\noisetensor$.
+\end{itemize}
 
 \end{document}
