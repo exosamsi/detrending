@@ -3,6 +3,7 @@
 \newcommand{\warning}[1]{\texttt{#1}}
 \newcommand{\project}[1]{\textsl{#1}}
 \newcommand{\Kepler}{\project{Kepler}}
+\newcommand{\dd}{\mathrm{d}}
 \newcommand{\given}{\,|\,}
 \newcommand{\setof}[1]{\left\{{#1}\right\}}
 \newcommand{\datum}{Y}
@@ -18,7 +19,7 @@
 \newcommand{\normal}{N}
 \newcommand{\mean}{\mu}
 
-\begin{document}
+\begin{document}\sloppy\sloppypar
 
 \section*{A partially marginalized likelihood for exoplanet inference}
 
@@ -81,6 +82,32 @@ and $\normal(x\given m,V)$ is the Gaussian for $x$ with mean $m$ and variance $V
 
 By assumption, we care only about the exoplanet parameters $\exopars$
 and not in the least about the star parameters $\starpars$.
+We marginalize by
+\begin{eqnarray}
+p(\data\given\exopars,\hyperpars)
+  &=& \int p(\data\given\exopars,\starpars,\hyperpars)\,p(\starpars\given\hyperpars)\,\dd\starpars
+\label{eq:mlike}
+\quad ,
+\end{eqnarray}
+where
+we have had to introduce a prior PDF $p(\starpars\given\hyperpars)$ for the star parameters.
+This prior will in general depend on the hyperparameters $\hyperpars$,
+which is a very good thing (because learning can happen there).
+The object defined in (\ref{eq:mlike}) is the \emph{partially marginalized likelihood}
+we seek.
+
+The considerations \textsl{(1)}~that marginalization is of paramount,
+and \textsl{(2)}~that the variability of the star is stochastic,
+lead us naturally to think about Gaussian Processes.
+In a Gaussian process in this context,
+there are hyperparameters controlling a non-trivial covariance matrix in the space of the data,
+and the star is modeled (in a prior sense) as a Gaussian draw from this covariance matrix.
+The brilliant idea generated at SAMSI is that we can model a non-trivial covariance matrix,
+which will be dense in the original data space,
+with a trivial, \emph{diagonal} covariance matrix in a different basis.
+For all sorts of good reasons, we will think about wavelet bases,
+but what follows is pretty general
+
 
 
 \end{document}
