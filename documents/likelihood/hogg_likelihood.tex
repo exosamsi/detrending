@@ -6,18 +6,29 @@
 \newcommand{\dd}{\mathrm{d}}
 \newcommand{\given}{\,|\,}
 \newcommand{\setof}[1]{\left\{{#1}\right\}}
+\newcommand{\transpose}[1]{{#1}^{\mathsf{T}}}
+\newcommand{\elmult}{\ast}
 \newcommand{\datum}{Y}
 \newcommand{\data}{\setof{\datum_n}_{n=1}^N}
+\newcommand{\datavec}{y}
 \renewcommand{\time}{t}
-\newcommand{\exofn}{q}
+\newcommand{\exofn}{Q}
+\newcommand{\exovec}{q}
 \newcommand{\exopars}{\omega}
 \newcommand{\flux}{F}
+\newcommand{\fluxvec}{f}
 \newcommand{\starpars}{\alpha}
 \newcommand{\noise}{e}
 \newcommand{\variance}{\sigma^2}
 \newcommand{\hyperpars}{\varphi}
 \newcommand{\normal}{N}
 \newcommand{\mean}{\mu}
+\newcommand{\meanvec}{m}
+\newcommand{\noisetensor}{\Psi}
+\newcommand{\wavetensor}{A}
+\newcommand{\weightmatrix}{W}
+\newcommand{\vartensor}{V}
+\newcommand{\onevec}{O}
 
 \begin{document}\sloppy\sloppypar
 
@@ -29,7 +40,7 @@ David W. Hogg (NYU) \\
 
 \paragraph{disclaimer:}
 \warning{This document is a draft, and not yet ready for public consumption.
-In particular, any use of the content in this document would represent a serious lapse in judgement.}
+In particular, any use of the content in this document might represent a serious lapse in judgement.}
 
 \paragraph{abstract:}
 We present a likelihood function for the time-series photometry
@@ -65,6 +76,7 @@ with known variances $\variance_n$, the likelihood function becomes
 \begin{eqnarray}
 p(\data\given\exopars,\starpars,\hyperpars)
   &=& \prod_{n=1}^N p(\datum_n\given\exopars,\starpars,\hyperpars)
+\label{eq:like}
 \\
 p(\datum_n\given\exopars,\starpars,\hyperpars)
   &=& \normal(\datum_n\given\mean_n,\variance_n)
@@ -96,7 +108,7 @@ which is a very good thing (because learning can happen there).
 The object defined in (\ref{eq:mlike}) is the \emph{partially marginalized likelihood}
 we seek.
 
-The considerations \textsl{(1)}~that marginalization is of paramount,
+The considerations \textsl{(1)}~that marginalization is paramount,
 and \textsl{(2)}~that the variability of the star is stochastic,
 lead us naturally to think about Gaussian Processes.
 In a Gaussian process in this context,
@@ -106,8 +118,40 @@ The brilliant idea generated at SAMSI is that we can model a non-trivial covaria
 which will be dense in the original data space,
 with a trivial, \emph{diagonal} covariance matrix in a different basis.
 For all sorts of good reasons, we will think about wavelet bases,
-but what follows is pretty general
+but what follows is pretty general.
 
+Because we are about to get all linear-algebra-y, let's make some
+notation changes: Instead of the ``set'' of data $\data$ we will move
+to thinking about the $N$ data points as components of a column vector
+$\datavec$.  Instead of the ``functions''
+$\exofn(\cdot\given\exopars)$ and $\flux(\cdot\given\starpars)$, we
+will think of the column vectors $\exovec$ and $\fluxvec$.
+
+\warning{...wavelet transform basics...}
+
+In this linear algebra context, we can write the unmarginalized likelihood (\ref{eq:like}) as
+\begin{eqnarray}
+p(\datavec\given\exopars,\starpars,\hyperpars)
+  &=& \normal(\datavec\given\meanvec,\vartensor)
+\\
+\meanvec
+  &\equiv& [\onevec - \exovec]\elmult\fluxvec
+\\
+\vartensor
+  &\equiv& \noisetensor + \transpose{\weightmatrix}\cdot\wavetensor\cdot\weightmatrix
+\quad ,
+\end{eqnarray}
+where
+$\onevec$ is the $N$-dimensional vector of ones (unities),
+``$\elmult$'' denotes element-wise multiplication,
+$\noisetensor$ is the diagonal noise variance tensor with $\variance_n$ values down the diagonal,
+$\weightmatrix$ is the linear operator that transforms points
+from the (natural) time basis to the wavelet basis,
+and $\wavetensor$ is the diagonal tensor of variances appropriate to the wavelet components.
+That is, down the diagonal of $\wavetensor$ are the variances from which,
+in a prior sense,
+the amplitudes of the wavelets are expected to be drawn,
+in the absence of (or prior to) data.
 
 
 \end{document}
