@@ -1,4 +1,86 @@
 \documentclass[12pt,letterpaper]{article}
+
+\newcommand{\warning}[1]{\texttt{#1}}
+\newcommand{\project}[1]{\textsl{#1}}
+\newcommand{\Kepler}{\project{Kepler}}
+\newcommand{\given}{\,|\,}
+\newcommand{\setof}[1]{\left\{{#1}\right\}}
+\newcommand{\datum}{Y}
+\newcommand{\data}{\setof{\datum_n}_{n=1}^N}
+\renewcommand{\time}{t}
+\newcommand{\exofn}{q}
+\newcommand{\exopars}{\omega}
+\newcommand{\flux}{F}
+\newcommand{\starpars}{\alpha}
+\newcommand{\noise}{e}
+\newcommand{\variance}{\sigma^2}
+\newcommand{\hyperpars}{\varphi}
+\newcommand{\normal}{N}
+\newcommand{\mean}{\mu}
+
 \begin{document}
-Hello World!
+
+\section*{A partially marginalized likelihood for exoplanet inference}
+
+\noindent
+David W. Hogg (NYU) \\
+\textit{with help from Paul Baines (Davis) and everyone else at SAMSI \Kepler}
+
+\paragraph{disclaimer:}
+\warning{This document is a draft, and not yet ready for public consumption.
+In particular, any use of the content in this document would represent a serious lapse in judgement.}
+
+\paragraph{abstract:}
+We present a likelihood function for the time-series photometry
+that makes up a lightcurve from the \Kepler\ mission (or similar experiment).
+The function includes parameters that describe stochastic stellar variability
+and parameters that describe periodic exoplanet (or other companion) transits.
+The stellar variability model is a Gaussian Process in a wavelet basis
+that is capable of modeling non-trivial time correlations with a diagonal covariance matrix.
+These choices make it possible to \emph{marginalize out} all stellar-variability parameters,
+leaving the user with a flexible likelihood function parameterized only by exoplanet parameters.
+We show \warning{something non-trivial}.
+
+\section{generalities}
+
+There are $N$ observations $\datum_n$ of a single star taken at times $\time_n$.
+The model is
+\begin{eqnarray}
+\datum_n &=& [1 - \exofn(t_n\given\exopars)]\,\flux(t_n\given\starpars) + \noise_n
+\quad ,
+\end{eqnarray}
+where
+$\exofn(\cdot\given\exopars)$ is a function
+that describes the attenuation of the starlight caused by the transiting exoplanet,
+$\exopars$ is a blob of parameters describing an exoplanet's size and orbit,
+$\flux(\cdot\given\starpars)$ is a function
+that describes the apparent brightness of the star as a function of time,
+$\starpars$ is a blob of parameters describing the stellar mean flux and variability,
+and $\noise_n$ is the noise contribution to the $n$th datum
+(coming from photon and read noise, among other things).
+This description---plus a model for the noise---will lead to a justifiable likelihood function.
+If we model the noise contributions as being Gaussian and independent
+with known variances $\variance_n$, the likelihood function becomes
+\begin{eqnarray}
+p(\data\given\exopars,\starpars,\hyperpars)
+  &=& \prod_{n=1}^N p(\datum_n\given\exopars,\starpars,\hyperpars)
+\\
+p(\datum_n\given\exopars,\starpars,\hyperpars)
+  &=& \normal(\datum_n\given\mean_n,\variance_n)
+\\
+\mean_n
+  &\equiv& [1 - \exofn(t_n\given\exopars)]\,\flux(t_n\given\starpars)
+\quad ,
+\end{eqnarray}
+where
+$\data$ is the set of all data,
+$\hyperpars$ is an enormous blob of hyperparameters
+that includes all our decision-making and assumptions (and more, soon),
+the product in the likelihood encodes our ``independent noise'' assumption,
+and $\normal(x\given m,V)$ is the Gaussian for $x$ with mean $m$ and variance $V$,
+
+By assumption, we care only about the exoplanet parameters $\exopars$
+and not in the least about the star parameters $\starpars$.
+
+
 \end{document}
