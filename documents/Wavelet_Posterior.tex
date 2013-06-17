@@ -1,0 +1,211 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage{amsmath, amsthm, amssymb, fancyhdr, fancybox, graphicx,psfrag,dcolumn,bm,accents,setspace,textcomp,url,color,wasysym}
+\setlength{ \oddsidemargin} {-.4in}
+\setlength{ \evensidemargin} {-.4in}
+\setlength{ \topmargin}{-0.5in}
+\setlength{ \textwidth} {6.5in}
+\setlength{ \textheight} {9.5 in}
+\newtheorem{thm}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+\newtheorem{identity}{Identity}
+\newtheorem{defn}{Definition}
+\newcommand{\argmax}{\operatornamewithlimits{argmax}}
+\newcommand{\argmin}{\operatornamewithlimits{argmin}}
+\newcommand{\dist}{\operatornamewithlimits{\sim}}
+\newcommand{\converges}{\operatornamewithlimits{\longrightarrow}}
+\newcommand{\cprob}{\stackrel{p}{\longrightarrow}}
+\newcommand{\cdist}{\stackrel{d}{\longrightarrow}}
+\newcommand{\cprobanddist}{\stackrel{p,d}{\longrightarrow}}
+\newcommand{\cas}{\stackrel{a.s.}{\longrightarrow}}
+\newcommand{\crth}{\stackrel{r}{\longrightarrow}}
+\newcommand{\cone}{\stackrel{1}{\longrightarrow}}
+\newcommand{\cms}{\stackrel{m.s.}{\longrightarrow}}
+\newcommand{\iid}{\stackrel{iid}{\sim}}
+\newcommand{\wtssim}{\stackrel{wts}{\sim}}
+\newcommand{\simapprox}{\stackrel{approx.}{\sim}}
+\newcommand{\eqas}{\stackrel{a.s.}{=}}
+\newcommand{\eqdist}{\stackrel{d}{=}}
+\def\Var{{\rm Var}\,}
+\def\E{{\rm E}\,}
+\def\Ycom{Y_{com}}
+\def\Wish{{\rm Wishart}\,}
+\def\IWish{{\rm Inv-Wishart}\,}
+\def\Po{{\rm Pois}\,}
+\def\Nb{{\rm Neg-Bin}\,}
+\def\Gm{{\rm Gamma}\,}
+\begin{document}
+\title{Modeling Ideas: Transit Modeling for Kepler Light Curves}
+\author{Paul Baines}
+\date{\today}
+\maketitle
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Notation \& Preliminaries}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\emph{Disclaimer: These are just preliminary ideas. There are likely to be typos etc. throughout the document. Use at your own risk. \smiley}\\
+$ $\\
+Consider a random process $Y$ defined as a function of time and depending on unknown parameter(s) $\theta$ i.e., $Y(t|\theta)$. For simplicity let $\theta=(\omega,\psi,\xi)$ and $\mathcal{T}$ be the interval on which the process is defined. We assume that:
+\begin{align*}
+ Y(t|\theta) &= m(t|\omega,\xi) + \epsilon(t|\psi) , \qquad \forall \, t \in \mathcal{T} \\
+ m(t|\omega,\xi) &= \left[1-q(t|\omega)\right]f(t|\xi) , 
+\end{align*}
+where $\epsilon(t|\psi)$ is a mean-zero random process and $f(t|\omega)$ is the underlying intensity if there are no transits i.e., $q(t|\omega)\equiv{}0$ if there are no transits. In the event of a transit we observe a version of $f(t|\xi)$ \lq{}dampened\rq{} by a multiplicative factor $1-q(t|\omega)$. There is a trade-off in the complexity we place in $f$ and in $\epsilon$, but for our purposes we assume a mean-zero Gaussian process for $\epsilon$:
+\begin{align}\label{noise_model}
+\epsilon_{t} \sim \textrm{GP}\left(0,\Sigma_{\epsilon}(\psi)\right) ,
+\end{align}
+where $\Sigma_{\epsilon}(t_{i},t_{j})=K(|t_{i}-t_{j}|;\psi)$ i.e., stationary covariance. Although the form in~\eqref{noise_model} is fairly rich, in practice we will often assume either independent noise (i.e., $\Sigma(t_{i},t_{j})=\sigma^{2}_{\epsilon}\delta_{t_{i}t_{j}}$) or Ornstein-Uhlenbeck/AR(1)-type noise. Although we only observe a noisy version of $m(t)$, the goal is to \lq{}separate\rq{} $m$ into two pieces: one representing \lq{}transit-like variation\rq{}, the other representing \lq{}everything else\rq{}. Fortunately we are able to approximate the form of $q$ parametrically. Let $t_{0}$ denote the time of the first transit, $t_{d}$ the transit duration, $\alpha$ the multiplicative reduction in the signal and $P$ the period. Then we assume:
+\begin{align*}
+ q(t|\omega) = \left\{ \begin{array}{cl}
+ 0 & \textrm{ if } (t\bmod{P}) \notin{} \left[t_{0},t_{0}+t_{d}\right] \\
+ \alpha & \textrm{ if }  (t\bmod{P}) \in \left[t_{0},t_{0}+t_{d}\right] 
+ \end{array}\right. ,
+\end{align*}
+where $\omega=\left\{t_{0},t_{D},\alpha,P\right\}$. More sophisticated models for the transit could also be used to allow for smooth transits. The remaining modeling task is to decide upon a structure for $f$, for which flexible models are required to capture all possible instrumental and astrophysical signals. We decide to model $f$ in the wavelet domain. Let $\mathbf{w}$ denote the DWT of $f$ and let $g$ denote a known thresholding function (hard or soft) applied to the wavelet coeffiicients then we could model $f$ as:
+\begin{align}\label{wv_def}
+ f(\cdot|\mathbf{w}) = \mathcal{W}^{-1}\mathbf{w} , \qquad \textrm{ s.t. } \quad  g(\mathbf{w})=c .
+\end{align}
+For example, $g$ could be used to constrain the high-resolution wavelet coefficients to zero. This can be just be viewed as a modeling the DWT-transformed mean as a linear function of a subset of the wavelet coefficients (i.e., or more generally, just a flexible parametric form for $f$ parametrized by the wavelet coefficients). This full model has parameters $\theta=\left\{\psi,\omega,\mathbf{w}\right\}$, corresponding to the noise (co)variance parameters, the transit parameters and the (denoised) wavelet coefficients describing the noiseless and transit-removed signal. The full model is then just:
+\begin{align}
+\nonumber
+ Y(t|\theta) &= \textrm{GP}\left(\left[1-q(t|\omega)\right]f(t|\xi),\Sigma_{\epsilon}(\psi)\right) , \\
+ \label{simple_like}
+ L(\theta|y) &= \mathcal{N}\left(y;\left[1-q(\cdot{}|\omega)\right]f(\cdot{}|\xi),\Sigma_{\epsilon}(\cdot;\psi)\right) . 
+\end{align}
+In a likelihood framework direct maximization of~\eqref{simple_like} with respect to $\theta$ is likely to be very difficult (and given the high dimension of $\mathbf{w}$, probably not advisable). However, given there may be prior information available about certain parameters we will instead take a more flexible approach that actually leads to simpler computation. Thus, instead of applying hard constraints on the wavelet coefficients we instead propose to model:
+\begin{align*}
+ \mathcal{W}\mathbf{f} = \mathbf{w} , \qquad 
+  \mathbf{w}|d,\Sigma_{w} \sim N\left(d,\Sigma_{w}\right) , \qquad
+  \mathbf{d}|\Sigma_{d} \sim N\left(0,\Sigma_{d}\right) .
+\end{align*}
+where $\mathcal{W}$ represents the DWT in matrix form. Thus:
+\begin{align*}
+  \mathbf{d} | \mathbf{w}, \Sigma_{w}, \Sigma_{d} \sim
+   N\left(\left[\Sigma_{d}^{-1}+\Sigma_{w}^{-1}\right]^{-1}\left[\Sigma_{w}^{-1}\mathbf{w}\right],\left[\Sigma_{d}^{-1}+\Sigma_{w}^{-1}\right]^{-1}\right) .
+\end{align*}
+This illustrates the shrinkage of the wavelet coefficients toward zero by an amount controlled by $\Sigma_{w}$. Typically $\Sigma_{w}$ would be specified to ensure a large amount of shrinkage for high-resolution coefficients, and minimal shrinkage for low-resolution coefficients (and would be diagonal). In practice as well, variances can be pooled across resolution levels to yield: 
+\begin{align*}
+  w_{km} \sim N\left(d_{km},\sigma^{2}_{w,m}\right) , \qquad
+  d_{km} \sim N\left(0,\sigma^{2}_{d,m}\right) , \qquad 
+  \sigma^{2}_{w,m} \sim \textrm{Inv-}\chi^{2}(\nu_{0},s^{2}) .
+\end{align*}
+Thus:
+\begin{align*}
+  d_{km} | w_{km}, \sigma^{2}_{w,m}, \sigma^{2}_{d,m} \sim
+   N\left(\frac{(\sigma^{2}_{w,m})^{-1}w_{km}}{(\sigma^{2}_{d,m})^{-1}+(\sigma_{w,m}^{2})^{-1}},\frac{1}{(\sigma^{2}_{d,m})^{-1}+(\sigma_{w,m}^{2})^{-1}}\right) .
+\end{align*}
+For levels with little or no shrinkage we obtain:
+\begin{align*}
+  d_{km} | w_{km}, \sigma^{2}_{w,m}, (\sigma^{-2}_{d,m}\approx{}0) \simapprox
+   N\left(w_{km},\sigma_{w,m}^{2}\right) ,
+\end{align*}
+and for levels with a high degree of shrinkage, the posterior for $d_{km}$ is concentrated around zero. For the time being, lets just consider $\Sigma_{d}$ (and possibly $\Sigma_{w}$ as well) to be specified by the analyst. Note that $\mathbf{f}$ and $\mathbf{w}$ are one-to-one so that:
+
+This version of the full model either has parameters $\theta=\left\{\psi,\omega\right\}$ or $\theta=\left\{\psi,\omega,\Sigma^{2}_{w}\right\}$ depending upon how the wavelet coefficients are modeled. The likelihood is given by:
+\begin{align}
+ p(y,f,d|\theta) &= p(y|f,\omega,\psi)p(f|d,\Sigma^{2}_{w})p(d) , \\
+ \Rightarrow{} \qquad p(y|\theta) &= \int{}p(y,f,d|\theta)df\,dd ,
+\end{align}
+again, the full Bayesian version simply requires a prior on all components of $\theta$ and may be preferable. 
+\begin{align}
+\label{joint_posterior} 
+ p(f,d,\theta|y) &= p(y|f,\omega,\psi)p(f|d,\Sigma^{2}_{w})p(d)p(\psi,\omega,\Sigma^{2}_{w}) ,  \\
+ \Rightarrow{} \qquad p(\theta|y) &= \int{}p(f,d,\theta|y)df\,dd ,
+\end{align}
+The form of~\eqref{joint_posterior} lends itself to a natural Gibbs sampler of the form:
+\begin{align*}
+ \left[\psi|f,\omega\right] , \quad
+ \left[\omega|\psi,f\right] , \quad
+ \left[f|d,\omega,\psi,\Sigma^{2}_{w}\right] , \quad
+ \left[d|f,\Sigma^{2}_{w}\right] , \quad 
+ \left[\Sigma^{2}_{w}|d,f\right] ,
+\end{align*}
+where the conditioning on $y$ throughout is dropped for brevity. Let us briefly describe each of the Gibbs updates:
+\begin{itemize}
+\item Sampling from $\psi|f,\omega$: This just amounts to sampling from the posterior distribution of the covariance parameters of a Gaussian process. If the covariance is diagonal then, with a conjugate prior, $\psi$ can be sampled exactly (Inverse-$\chi^{2}$). If $\psi$ includes covariance parameters then this can be done using e.g., MH. 
+\item Sampling from $\omega|\psi,f$: This will not be in closed form and other methods (e.g., MH) will be needed. Intuitively, varying $\omega$ given $f$ varies the value of $m(t)$, so values of $\omega$ that yield $m$ to be an appropriate mean for $y$ (given $\psi$) will be favored. Likely to be the most challenging step to effectively explore the posterior.
+\item Sampling from $f|d,\omega,\psi,\Sigma^{2}_{w}$: Since $f$ is sandwiched within the multilevel model, the \lq{}prior\rq{} on $f$ is multivariate normal, and $f$ appears linearly in the \lq{}likelihood\rq{}, this will also be multivariate normal (albeit with some linear algebra and an inverse DWT required to compute the mean and variance). 
+\item Sampling from $d|f,\Sigma^{2}_{w}$: This is just multivariate normal. The current value of $f$ is transformed to the wavelet domain, and then the mean of $d$ is given by a shrunken version of the wavelet coefficients corresponding to the shrinkage induced by the relative weights of $\Sigma^{2}_{w}$ and $\Sigma^{2}_{d}$. 
+\item Sampling from $\Sigma^{2}_{w}|d,f$: This just amounts to sampling from the posterior distribution of the covariance parameters of a multivariate normal. If the covariance is diagonal (which it will be) or fully unstructured then, with a conjugate prior this can be sampled exactly (Inverse-$\chi^{2}$). For parametrized non-diagonal matrices it can be sampled using e.g., MH.
+\end{itemize}
+To make things more concrete, consider the special case with $n$ evenly-spaced osbervations (no missing data), 
+\begin{gather*}
+ \Sigma_{\epsilon}(\psi) = \sigma^{2}I , \qquad \Sigma_{d} = \textrm{diag}\left(\sigma^{2}_{d,1},\ldots,\sigma^{2}_{d,1},\sigma^{2}_{d,2},\ldots,\sigma^{2}_{d,J}\right) , \\
+ \Sigma_{w} = \textrm{diag}\left(\sigma^{2}_{w,1},\ldots,\sigma^{2}_{w,1},\sigma^{2}_{w,2},\ldots,\sigma^{2}_{w,J}\right) ,
+\end{gather*}
+where the elements of $\Sigma_{d}$ are specified constants. Full details of the sampling procedure for this special case are given below:
+\begin{itemize}
+\item Sampling from $\sigma^{2}|f,\omega$: With a conjugate prior $\sigma^{2}\sim\textrm{Inv-}\chi^{2}(\nu_{0},s_{0}^{2})$ on $\sigma^{2}$ we obtain the posterior:
+\begin{align*}
+ \sigma^{2} | f,\omega \sim \textrm{Inv-}\chi^{2}(\nu_{n},s_{n}^{2}) ,
+\end{align*} 
+where 
+\begin{align*}
+ \nu_{n} = \nu_{0} + n , \qquad s_{n}^{2} = \frac{n_{0}s_{0}^{2}+(y-f)^{T}(y-f)}{\nu_{n}} .
+\end{align*}
+\item Sampling from $\omega|\psi,f$: This will not be in closed form and other methods (e.g., MH) will be needed. Intuitively, varying $\omega$ given $f$ varies the value of $m(t)$, so values of $\omega$ that yield $m$ to be an appropriate mean for $y$ (given $\psi$) will be favored.
+\item Sampling from $f|d,\omega,\psi,\Sigma^{2}_{w}$: Since,
+\begin{align*}
+f|d,\Sigma_{w} \sim N\left(\mathcal{W}^{-1}d,\mathcal{W}^{-1}\Sigma_{w}\mathcal{W}^{-T}\right) , \qquad 
+y|f \sim N\left((I-Q)f,\Sigma_{\epsilon}\right) 
+\end{align*}
+Therefore:
+\begin{align*}
+ f | y,d,\Sigma_{w} &\sim N\left(\mu_{f},\Sigma_{f}\right) , \\
+ \Sigma_{f}^{-1} &= \mathcal{W}^{T}\Sigma_{w}^{-1}\mathcal{W} + (I-Q)\Sigma_{\epsilon}^{-1}(I-Q) ,\\
+ \mu_{f} &= \Sigma_{f}\left[ \mathcal{W}^{T}\Sigma_{w}^{-1}d + (I-Q)\Sigma_{\epsilon}^{-1}y\right] .
+\end{align*}
+Note that if $\Sigma_{w}=\sigma^{2}_{w}I$ then $\Sigma_{f}$ is diagonal and $\mathcal{W}^{T}d$ is the IDWT of $d$.
+\item Sampling from $d|f,\Sigma^{2}_{w}$: Let $w=\mathcal{W}f$, then:
+\begin{align*}
+ \mathbf{d} | \mathbf{w}, \Sigma_{w}, \Sigma_{d} \sim
+   N\left(\left[\Sigma_{d}^{-1}+\Sigma_{w}^{-1}\right]^{-1}\left[\Sigma_{w}^{-1}\mathbf{w}\right],\left[\Sigma_{d}^{-1}+\Sigma_{w}^{-1}\right]^{-1}\right) .
+ \end{align*}
+ Note that both $\Sigma_{w}$ and $\Sigma_{d}$ are diagonal, so there are no matrix inversions in this step.
+\item Sampling from $\Sigma^{2}_{w}|d,f$: With independent conjugate priors on each $\sigma^{2}_{w,j}\sim\textrm{Inv-}\chi^{2}(\nu_{w,j,0},s_{w,j,0}^{2})$ on each $\sigma^{2}_{w,j}$ for $j=1,\ldots,J$ we obtain:
+\begin{align*}
+ \sigma^{2}_{w,j} | d,f \sim \textrm{Inv-}\chi^{2}(\nu_{w,j,n},s_{w,j,n}^{2}) ,
+\end{align*} 
+where 
+\begin{align*}
+ \nu_{w,j,n} = \nu_{w,0} + n_{j} , \qquad s^{2} = \frac{\nu_{w,0}s_{w,j,0}^{2}+(w_{j}-d_{j})^{T}(w_{j}-d_{j})}{\nu_{w,j,n}} .
+\end{align*}
+Here $n_{j}$ is the number of coefficients in level $j$ of the wavelet decomposition and $w_{j}$ and $d_{j}$ are the subcomponents of $w$ and $d$ corresponding to the wavelet coefficients at level $j$.
+\end{itemize}
+
+\end{document} 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ \begin{align*}
+ Y(t|\theta) &= m(t|\omega) + \epsilon(t|\psi) , \qquad \forall \, t \in \mathcal{T} \\
+ \log{}m(t|\omega) &= \log{}f(t|\omega)+ \log{}(1-q(t|\omega)) .
+ \mathcal{W}\log{}m(t|\omega) &= \mathcal{W}\log{}f(t|\omega)+\mathcal{W}\log{}(1-q(t|\omega)) .
+\end{align*}
+Note that by taking the log transformation we assume that $m$ and $f$ are positive for all $t$ and $q\in{}[0,1)$. In the wavelet domain we have strong 
+
+\begin{align*}
+ Y(t|\theta) &= m(t|\omega) + \epsilon(t|\psi) , \qquad \forall \, t \in \mathcal{T} \\
+ m(t|\omega) &= f(t|\omega)-q(t|\omega)\right]f(t|\omega) , 
+\end{align*}
+where $f(t|\omega)$ is the underlying intensity if there are no transits i.e., $q(t|\omega)\equiv{}0$ if there are no transits. In the event of a transit we observe a version of $f(t|\omega)$ \lq{}dampened\rq{} by the multiplicative factor $1-q(t|\omega)$. Since we only observe a noisy version of $m(t)$ we seek to express 
+
+ \begin{align*}
+ Y(t|\theta) &= m(t|\omega) + \epsilon(t|\psi) , \qquad \forall \, t \in \mathcal{T} \\
+ \mathcal{W}m(t|\omega) &= \mathcal{W}f(t|\omega)-\mathcal{W}f(t|\omega)q(t|\omega) , 
+\end{align*}
+In the wavelet domain we have strong 
