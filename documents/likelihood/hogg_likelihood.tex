@@ -16,19 +16,21 @@
 \newcommand{\exovec}{q}
 \newcommand{\exopars}{\omega}
 \newcommand{\flux}{F}
-\newcommand{\fluxvec}{f}
+\newcommand{\meanflux}{\bar{f}}
 \newcommand{\starpars}{\alpha}
 \newcommand{\noise}{e}
 \newcommand{\variance}{\sigma^2}
 \newcommand{\hyperpars}{\varphi}
-\newcommand{\normal}{N}
+\newcommand{\normal}{{\mathcal N}}
 \newcommand{\mean}{\mu}
 \newcommand{\meanvec}{m}
+\newcommand{\wavevec}{a}
 \newcommand{\noisetensor}{\Psi}
-\newcommand{\wavetensor}{A}
+\newcommand{\wavetensor}{\Phi}
 \newcommand{\weightmatrix}{W}
 \newcommand{\vartensor}{V}
 \newcommand{\onevec}{O}
+
 
 \begin{document}\sloppy\sloppypar
 
@@ -123,11 +125,31 @@ but what follows is pretty general.
 Because we are about to get all linear-algebra-y, let's make some
 notation changes: Instead of the ``set'' of data $\data$ we will move
 to thinking about the $N$ data points as components of a column vector
-$\datavec$.  Instead of the ``functions''
-$\exofn(\cdot\given\exopars)$ and $\flux(\cdot\given\starpars)$, we
-will think of the column vectors $\exovec$ and $\fluxvec$.
+$\datavec$.  Instead of the ``function'' $\exofn(\cdot\given\exopars)$,
+we will think of the column vector $\exovec$.
+Instead of individual scalar noise variances,
+we will think of variance tensors.
 
-\warning{...wavelet transform basics...}
+We are going to transform to another basis;
+that is, we are going to ``rotate'' between the time basis in which vector $y$ lives
+to a basis-function-amplitude vector $\wavevec$ wavelet-amplitude by a transformation like
+\begin{eqnarray}
+\datavec
+  &\leftarrow& \weightmatrix\cdot\wavevec
+\quad ,
+\end{eqnarray}
+where $\weightmatrix$ is a matrix of ``weights'' or basis functions,
+and $\wavevec$ is a vector of basis-function amplitudes.
+If this transformation is unitary, the inverse is
+\begin{eqnarray}
+\wavevec
+  &\leftarrow& \transpose{\weightmatrix}\cdot\datavec
+\quad .
+\end{eqnarray}
+In the real world, to make the transformation unitary,
+the user either must have evenly spaced, homoskedastic data (all $\variance_n$ identical),
+or else build a unique, inhomogeneous wavelet basis
+customized to every non-uniform, heteroskedastic data set or time series.
 
 In this linear algebra context, we can write the unmarginalized likelihood (\ref{eq:like}) as
 \begin{eqnarray}
@@ -135,15 +157,17 @@ p(\datavec\given\exopars,\starpars,\hyperpars)
   &=& \normal(\datavec\given\meanvec,\vartensor)
 \\
 \meanvec
-  &\equiv& [\onevec - \exovec]\elmult\fluxvec
+  &\equiv& \meanflux\,[\onevec - \exovec]
 \\
 \vartensor
-  &\equiv& \noisetensor + \transpose{\weightmatrix}\cdot\wavetensor\cdot\weightmatrix
+  &\equiv& \noisetensor + \weightmatrix\cdot\wavetensor\cdot\transpose{\weightmatrix}
 \quad ,
 \end{eqnarray}
 where
+$\meanvec$ and $\vartensor$ are the mean vector and variance tensor of the Gaussian Process,
+$\meanflux$ is the mean stellar flux,
 $\onevec$ is the $N$-dimensional vector of ones (unities),
-``$\elmult$'' denotes element-wise multiplication,
+$\exovec$ is the column vector made up of the $\exofn(t_n\given\exopars)$ values,
 $\noisetensor$ is the diagonal noise variance tensor with $\variance_n$ values down the diagonal,
 $\weightmatrix$ is the linear operator that transforms points
 from the (natural) time basis to the wavelet basis,
@@ -152,6 +176,17 @@ That is, down the diagonal of $\wavetensor$ are the variances from which,
 in a prior sense,
 the amplitudes of the wavelets are expected to be drawn,
 in the absence of (or prior to) data.
+Another way to put it is that the variance tensor $\vartensor$ is dense,
+but it is made from the two diagonal tensors $\noisetensor$ and $\wavetensor$,
+which are diagonal in different bases.
 
+In what follows,
+we are going to treat the diagonal data noise variance tensor $\noisetensor$ as known,
+the wavelet basis $\weightmatrix$ as fixed,
+but parameterize and permit to be fit the Gaussian Process variance tensor $\wavetensor$.
+
+\section{\Kepler specifics}
+
+\warning{hoo haw}
 
 \end{document}
