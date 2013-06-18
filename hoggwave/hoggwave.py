@@ -1,3 +1,10 @@
+"""
+bugs:
+-----
+- needs code header
+- ought to use sparse matrix shih
+"""
+
 import numpy as np
 
 def get_harr_matrix(N):
