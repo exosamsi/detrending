@@ -175,6 +175,7 @@ p(\datavec\given\exopars,\starpars,\hyperpars)
 \\
 \vartensor
   &\equiv& \noisetensor + \weightmatrix\cdot\wavetensor\cdot\transpose{\weightmatrix}
+\label{eq:variance}
 \quad ,
 \end{eqnarray}
 where
@@ -210,7 +211,29 @@ This will indeed become our goal, below.
 The wavelet amplitude prior variance $\wavetensor$ does \emph{not} need to be diagonal.
 It could be sparse, or tri-diagonal, or dense.
 Of course if it is fully dense, the advantage of going to the wavelet basis is reduced.
+\item
+If we only use the weight matrix $\weightmatrix$ to transform \emph{covariance matrices}---%
+and not transform and transform back the data or residuals---%
+we can in fact make the $\weightmatrix$ non-square,
+both by removing rows (or columns?) that correspond to wavelet scales at which we expect no power
+(more on this below),
+and by removing columns (or rows?) that correspond to data locations at which there are no observations
+(vanishing $1/\variance_n$).
+Finally, If we drop columns (or rows?) that correspond to contiguous intervals of data locations,
+there will be some ``unsupported'' wavelet components.
+These orphaned rows (or columns?) ought to also be dropped.
+These changes break orthonormality and completeness of the basis,
+but they do not change the symbolic form (\ref{eq:variance}) of the total variance tensor.
 \end{itemize}
+
+We can make further assumptions or restrictions of this model,
+capitalizing on the properties of the wavelet transform.
+In particular, the wavelet transform produces basis functions that are
+localized in both frequency and time.
+Our assumption is that the variances along the diagonal of the wavelet variance tensor $\wavetensor$
+are a function of frequency but \emph{not} time.
+That is, we assume that within each freqency band,
+the wavelet coefficients are drawn iid.
 
 In what follows,
 we are going to treat the diagonal data noise variance tensor $\noisetensor$ as known,
