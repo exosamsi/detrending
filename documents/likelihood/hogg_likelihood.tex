@@ -192,16 +192,25 @@ the amplitudes of the wavelets are expected to be drawn,
 in the absence of (or prior to) data.
 Another way to put it is that the variance tensor $\vartensor$ is dense,
 but it is made from the two diagonal tensors $\noisetensor$ and $\wavetensor$,
-which are diagonal in different bases.
-
-One note:  Although we refer to the expression in (\ref{eq:wavelike}) as
+which are diagonal in different bases.  Some notes:
+\begin{itemize}
+\item
+Although we refer to the expression in (\ref{eq:wavelike}) as
 a partially marginalized likelihood, it still contains the stellar parameter blob $\starpars$.
 This is because the variances along the diagonal of $\wavetensor$ are parameters of the star model;
 they are specific to the star.
 The partial marginalization has happened over the specific phases or amplitudes of the wavelet components,
 but not over the variances describing the distribution from which they were drawn.
+\item
 With an additional prior $p(\wavetensor\given\hyperpars)$,
 the star model can be marginalized out.
+This will indeed become our goal, below.
+\warning{This needs to be spelled out here or above and made explicit.}
+\item
+The wavelet amplitude prior variance $\wavetensor$ does \emph{not} need to be diagonal.
+It could be sparse, or tri-diagonal, or dense.
+Of course if it is fully dense, the advantage of going to the wavelet basis is reduced.
+\end{itemize}
 
 In what follows,
 we are going to treat the diagonal data noise variance tensor $\noisetensor$ as known,
@@ -221,7 +230,9 @@ This will ensure that the $\weightmatrix$ matrices are always unitary.
 This isn't required for inference but will be \emph{sick} for performance.
 \item
 An alternative is to work on the data in month-long segments
-(within which the data \emph{are} very close to  the structure of the
+(within which the data \emph{are} very close to uniformly sampled in time).
+The information in the data about the wavelet amplitude prior variance $\wavetensor$
+would have to be pooled across segments, but each segment would be transformed independently.
 \item
 At the same time as we treat the data as uniform in cadence and homoskedastic for the purposes
 of the $\weightmatrix$, for the purposes of computing the \emph{exoplanet transits},
