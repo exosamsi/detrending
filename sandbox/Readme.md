@@ -4,7 +4,7 @@ wget -r http://bbq.dfm.io/~dfm/sandbox1
 
 To remove the http directory structure use the following flags (sandbox1):
 
-wget -r -nH -cut-dirs=1 http://bbq.dfm.io/~dfm/sandbox1
+wget -r -nH --cut-dirs=1 http://bbq.dfm.io/~dfm/sandbox1
 
 To download only from a specific directory (skygroup27TCE/8012437):
 
