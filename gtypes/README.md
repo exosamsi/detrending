@@ -1,0 +1,1 @@
+q11_solar_type.dat includes 10100 KICs of fairly solar-like Q11 stars. The selection was made using the 2MASS (J-H)-(H-K) diagram and by setting a circle around a point (0.32,0.05) with a radius of 0.024. The chosen central point corresponds to solar color values.
