@@ -30,7 +30,7 @@
 \newcommand{\exopars}{\omega}
 \newcommand{\flux}{F}
 \newcommand{\meanflux}{\bar{f}}
-\newcommand{\starpars}{\alpha}
+\newcommand{\lcpars}{\alpha}
 \newcommand{\noise}{e}
 \newcommand{\variance}{\sigma^2}
 \newcommand{\hyperpars}{\varphi}
@@ -42,6 +42,7 @@
 \newcommand{\wavetensor}{\Phi}
 \newcommand{\weightmatrix}{W}
 \newcommand{\vartensor}{V}
+\newcommand{\basisfunction}{g}
 \newcommand{\onevec}{O}
 
 \begin{document}\sloppy\sloppypar
@@ -67,36 +68,47 @@ These choices make it possible to \emph{marginalize out} all stellar-variability
 leaving the user with a flexible likelihood function parameterized only by exoplanet parameters.
 We show \warning{something non-trivial}.
 
-\section{generalities}
+\section{Introduction}
+
+\warning{Transits are hard to find in general; harder in variable stars.  All stars are variable.}
+
+\warning{Fitting transits and stellar variability simultaneously is The Right Thing To Do~(tm).}
+
+\warning{Gaussian Processes are a Good Idea~(tm).}
+
+\warning{Wavelets are a Good Idea~(tm).}
+
+\section{Likelihood generalities}
 
 There are $N$ observations $\datum_n$ of a single star taken at times $\time_n$.
 The model is
 \begin{eqnarray}
-\datum_n &=& [1 - \exofn(t_n\given\exopars)]\,\flux(t_n\given\starpars) + \noise_n
+\datum_n &=& [1 - \exofn(t_n\given\exopars)]\,\flux(t_n\given\lcpars) + \noise_n
 \quad ,
 \end{eqnarray}
 where
 $\exofn(\cdot\given\exopars)$ is a function
 that describes the attenuation of the starlight caused by the transiting exoplanet,
 $\exopars$ is a blob of parameters describing an exoplanet's size and orbit,
-$\flux(\cdot\given\starpars)$ is a function
+$\flux(\cdot\given\lcpars)$ is a function
 that describes the apparent brightness of the star as a function of time,
-$\starpars$ is a blob of parameters describing the stellar mean flux and variability,
+$\lcpars$ is a blob of parameters describing the stellar mean flux and the
+variation of that flux with time,
 and $\noise_n$ is the noise contribution to the $n$th datum
 (coming from photon and read noise, among other things).
 This description---plus a model for the noise---will lead to a justifiable likelihood function.
 If we model the noise contributions as being Gaussian and independent
 with known variances $\variance_n$, the likelihood function becomes
 \begin{eqnarray}
-p(\data\given\exopars,\starpars,\hyperpars)
-  &=& \prod_{n=1}^N p(\datum_n\given\exopars,\starpars,\hyperpars)
+p(\data\given\exopars,\lcpars,\hyperpars)
+  &=& \prod_{n=1}^N p(\datum_n\given\exopars,\lcpars,\hyperpars)
 \label{eq:like}
 \\
-p(\datum_n\given\exopars,\starpars,\hyperpars)
+p(\datum_n\given\exopars,\lcpars,\hyperpars)
   &=& \normal(\datum_n\given\mean_n,\variance_n)
 \\
 \mean_n
-  &\equiv& [1 - \exofn(t_n\given\exopars)]\,\flux(t_n\given\starpars)
+  &\equiv& [1 - \exofn(t_n\given\exopars)]\,\flux(t_n\given\lcpars)
 \quad ,
 \end{eqnarray}
 where
@@ -107,20 +119,22 @@ the product in the likelihood encodes our ``independent noise'' assumption,
 and $\normal(x\given m,V)$ is the Gaussian for $x$ with mean $m$ and variance $V$,
 
 By assumption, we care only about the exoplanet parameters $\exopars$
-and not in the least about the star parameters $\starpars$.
+and not in the least about the stellar variability parameters $\lcpars$.
 We marginalize by
 \begin{eqnarray}
 p(\data\given\exopars,\hyperpars)
-  &=& \int p(\data\given\exopars,\starpars,\hyperpars)\,p(\starpars\given\hyperpars)\,\dd\starpars
+  &=& \int p(\data\given\exopars,\lcpars,\hyperpars)\,p(\lcpars\given\hyperpars)\,\dd\lcpars
 \label{eq:mlike}
 \quad ,
 \end{eqnarray}
 where
-we have had to introduce a prior PDF $p(\starpars\given\hyperpars)$ for the star parameters.
-This prior will in general depend on the hyperparameters $\hyperpars$,
-which is a very good thing (because learning can happen there).
+we have had to introduce a prior PDF $p(\lcpars\given\hyperpars)$ for the variability parameters.
+This prior will in general depend on the hyperparameters $\hyperpars$
+(which is a very good thing (because learning can happen there).
 The object defined in (\ref{eq:mlike}) is the \emph{partially marginalized likelihood}
 we seek.
+
+\section{Wavelet-based Gaussian Process}
 
 The considerations \textsl{(1)}~that marginalization is paramount,
 and \textsl{(2)}~that the variability of the star is stochastic,
@@ -162,11 +176,34 @@ In the real world, to make the transformation unitary,
 the user either must have evenly spaced, homoskedastic data (all $\variance_n$ identical),
 or else build a unique, inhomogeneous wavelet basis
 customized to every non-uniform, heteroskedastic data set or time series.
+In what follows, we won't need this unitarity to be true.
 
-In this linear algebra context,
-we can write a partially (very partially; see below) marginalized likelihood as:
+In this framework, the star variability parameters $\lcpars$%
+---the parameters that set the particular shape of the star's flux as a function of time---%
+are contained in the vector $\wavevec$ that comprises the amplitudes of the wavelet coefficients.
+This model is equivalent to assuming that the star's flux as a function of time
+can be written as a superposition of basis functions
 \begin{eqnarray}
-p(\datavec\given\exopars,\starpars,\hyperpars)
+\flux(t\given\lcpars) &=& \sum_{k=1}^K \sum_{p=1}^{P_k} \wavevec_{kp}\,\basisfunction_{kp}(t)
+\end{eqnarray}
+where
+the $\wavevec_{kp}$ are the elements of the vector $\wavevec$
+(and therefore the contents of the parameter blob $\lcpars$),
+and the $\basisfunction_{kp}$ are the wavelet basis functions.
+The basis functions are indexed by two indices,
+one ($k$) going over the frequency domain,
+and the other ($p$) going over the location or time domain.
+
+The two key ideas of the variability model we propose here%
+---the model for $p(\lcpars\given\hyperpars)$ or equivalently $p(\wavevec\given\hyperpars)$---%
+are \textsl{(1)}~that in the wavelet basis the Gaussian from which the vector $\wavevec$ is drawn
+can have a diagonal covariance matrix,
+and \textsl{(2)}~that the variances on the diagonal of that matrix will depend only on the
+frequency index $k$ and not at all on the location index $p$.
+Under these assumptions (really only the diagonality assumption),
+we can write the partially marginalized likelihood as:
+\begin{eqnarray}
+p(\datavec\given\exopars,\hyperpars)
   &=& \normal(\datavec\given\meanvec,\vartensor)
 \label{eq:wavelike}
 \\
@@ -189,81 +226,100 @@ from the (natural) time basis to the wavelet basis,
 and $\wavetensor$ is the diagonal tensor of variances appropriate to the wavelet components.
 That is, down the diagonal of $\wavetensor$ are the variances from which,
 in a prior sense,
-the amplitudes of the wavelets are expected to be drawn,
+the amplitudes $\wavevec$ of the wavelet components are expected to be drawn,
 in the absence of (or prior to) data.
 Another way to put it is that the variance tensor $\vartensor$ is dense,
 but it is made from the two diagonal tensors $\noisetensor$ and $\wavetensor$,
-which are diagonal in different bases.  Some notes:
-\begin{itemize}
-\item
-Although we refer to the expression in (\ref{eq:wavelike}) as
-a partially marginalized likelihood, it still contains the stellar parameter blob $\starpars$.
-This is because the variances along the diagonal of $\wavetensor$ are parameters of the star model;
-they are specific to the star.
-The partial marginalization has happened over the specific phases or amplitudes of the wavelet components,
-but not over the variances describing the distribution from which they were drawn.
-\item
-With an additional prior $p(\wavetensor\given\hyperpars)$,
-the star model can be marginalized out.
-This will indeed become our goal, below.
-\warning{This needs to be spelled out here or above and made explicit.}
-\item
-The wavelet amplitude prior variance $\wavetensor$ does \emph{not} need to be diagonal.
+each of which is diagonal (but in different bases).  Some notes:
+
+\textsl{(a)}~%
+In this way of thinking about it, the wavelet-amplitude diagonal
+variance tensor $\wavetensor$ is part of the hyperparameter blob
+$\hyperpars$.
+With an additional hyperparameters in this blob,
+and choices about hyperpriors on the hyperpriors,
+the variability model itself can be marginalized out.
+This may indeed become one of our goals below.
+
+\textsl{(b)}~%
+The form (\ref{eq:variance}) for the variance tensor assumes diagonality
+but does not yet capitalize on the frequency and location of the wavelets.
+The idea that the variances will depend on the freqency index but \emph{not} the location index.
+That means that diagonal tensor $\wavetensor$ will have repeated elements; the number of
+free parameters will be far smaller than the number of wavelet amplitudes in $\wavevec$.
+
+\textsl{(c)}~%
+For many wavelet bases, the number $K$ of distinct frequencies $k$ is only of order $\log_2(N)$,
+where $N$ is the number of parameters.
+This means that even a non-parametric form for $\wavetensor$
+will only grow logarithmically with the size of the data set.
+
+\textsl{(d)}~%
+The wavelet amplitude prior variance $\wavetensor$ does \emph{not} need to be diagonal in principle.
 It could be sparse, or tri-diagonal, or dense.
 Of course if it is fully dense, the advantage of going to the wavelet basis is reduced.
-\item
+We won't consider that case further here.
+
+\textsl{(e)}~%
 If we only use the weight matrix $\weightmatrix$ to transform \emph{covariance matrices}---%
 and not transform and transform back the data or residuals---%
 we can in fact make the $\weightmatrix$ non-square,
-both by removing rows (or columns?) that correspond to wavelet scales at which we expect no power
+both by removing rows that correspond to wavelet scales at which we expect no power
 (more on this below),
-and by removing columns (or rows?) that correspond to data locations at which there are no observations
+and by removing columns that correspond to data locations at which there are no observations
 (vanishing $1/\variance_n$).
-Finally, If we drop columns (or rows?) that correspond to contiguous intervals of data locations,
-there will be some ``unsupported'' wavelet components.
-These orphaned rows (or columns?) ought to also be dropped.
+Finally, If we drop columns that correspond to contiguous intervals of data locations,
+there will in general be some ``unsupported'' wavelet components.
+These orphaned rows ought to also be dropped to keep relevant matrices full-rank.
 These changes break orthonormality and completeness of the basis,
 but they do not change the symbolic form (\ref{eq:variance}) of the total variance tensor.
-\end{itemize}
-
-We can make further assumptions or restrictions of this model,
-capitalizing on the properties of the wavelet transform.
-In particular, the wavelet transform produces basis functions that are
-localized in both frequency and time.
-Our assumption is that the variances along the diagonal of the wavelet variance tensor $\wavetensor$
-are a function of frequency but \emph{not} time.
-That is, we assume that within each freqency band,
-the wavelet coefficients are drawn iid.
 
 In what follows,
 we are going to treat the diagonal data noise variance tensor $\noisetensor$ as known,
 the wavelet basis $\weightmatrix$ as fixed,
-but parameterize and permit to be fit the Gaussian Process variance tensor $\wavetensor$.
+but parameterize and permit to be fit the Gaussian Process variance tensor $\wavetensor$,
+parameterized in a form that makes the variances sensitive to scale but not location.
 
 \section{\Kepler\ specifics}
 
 My proposal---it can't be described as ``our proposal'' just yet---%
 is to do the following violence to the model to keep the core ideas,
 but make it tractable, at the cost of strengthening or distorting some assumptions.
-\begin{itemize}
-\item
+
+\warning{Going to work on the Untrendied SAP data.
+         Explain why}
+
+\warning{Turning Untrendy knobs to 11.
+         We don't want any discontinuities or artifacts.}
+
 For the purposes of computing the wavelet transformation matrices $\weightmatrix$,
 treat the data as coming homoskedastic on a perfectly equally-spaced grid.
-This will ensure that the $\weightmatrix$ matrices are always unitary.
-This isn't required for inference but will be \emph{sick} for performance.
-\item
-An alternative is to work on the data in month-long segments
-(within which the data \emph{are} very close to uniformly sampled in time).
-The information in the data about the wavelet amplitude prior variance $\wavetensor$
-would have to be pooled across segments, but each segment would be transformed independently.
-\item
-At the same time as we treat the data as uniform in cadence and homoskedastic for the purposes
+Then we will drop rows and columns where there is no data,
+or no support for particular wavelet basis functions.
+
+We will also punk (slightly) the wavelet transform in the following sense:
+We will treat the data as uniform in cadence for the purposes
 of the $\weightmatrix$, for the purposes of computing the \emph{exoplanet transits},
 treat the data as coming from the true, non-uniform grid in BJD.
-\item
-At the same time as we treat the data as uniform in cadence and homoskedastic for the purposes
-of the $\weightmatrix$, for the purposes of computing the likelihood function,
-use the heteroskedastic $\noisetensor$.
-\end{itemize}
+That is, we will be able to use ``out of the box'' wavelet...
+
+\section{Search}
+
+\warning{We have to say something about the horrible, horrible things we do to get started.}
+
+\section{Experiments}
+
+\warning{Experiment 1: Run on a single injection into a single good G star.
+         Show that we recover correctly.}
+
+\warning{Experiment 2: Run on a representative sample of G stars with a representative sample of injections.
+         Show that we rock it.}
+
+\warning{Experiment 3: Run on 10,000 G stars.
+         Find all ELPaSLS.}
+
+\section{Discussion}
+
+\warning{foo}
 
 \end{document}
