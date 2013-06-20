@@ -161,7 +161,7 @@ that is, we are going to ``rotate'' between the time basis in which vector $y$ l
 to a basis-function-amplitude vector $\wavevec$ wavelet-amplitude by a transformation like
 \begin{eqnarray}
 \datavec
-  &\leftarrow& \weightmatrix\cdot\wavevec
+  &\leftarrow& \transpose{\weightmatrix}\cdot\wavevec
 \quad ,
 \end{eqnarray}
 where $\weightmatrix$ is a matrix of ``weights'' or basis functions,
@@ -169,7 +169,7 @@ and $\wavevec$ is a vector of basis-function amplitudes.
 If this transformation is unitary, the inverse is
 \begin{eqnarray}
 \wavevec
-  &\leftarrow& \transpose{\weightmatrix}\cdot\datavec
+  &\leftarrow& \weightmatrix\cdot\datavec
 \quad .
 \end{eqnarray}
 In the real world, to make the transformation unitary,
@@ -211,7 +211,7 @@ p(\datavec\given\exopars,\hyperpars)
   &\equiv& \meanflux\,[\onevec - \exovec]
 \\
 \vartensor
-  &\equiv& \noisetensor + \weightmatrix\cdot\wavetensor\cdot\transpose{\weightmatrix}
+  &\equiv& \noisetensor + \weightmatrix\cdot\transpose{\wavetensor}\cdot{\weightmatrix}
 \label{eq:variance}
 \quad ,
 \end{eqnarray}
@@ -301,7 +301,8 @@ We will also punk (slightly) the wavelet transform in the following sense:
 We will treat the data as uniform in cadence for the purposes
 of the $\weightmatrix$, for the purposes of computing the \emph{exoplanet transits},
 treat the data as coming from the true, non-uniform grid in BJD.
-That is, we will be able to use ``out of the box'' wavelet...
+That is, we will be able to use ``out of the box'' code to generate the wavelet transform
+matrix $\weightmatrix$.
 
 \section{Search}
 
