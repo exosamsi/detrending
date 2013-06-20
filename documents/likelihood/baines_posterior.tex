@@ -22,6 +22,7 @@
 \newcommand{\cone}{\stackrel{1}{\longrightarrow}}
 \newcommand{\cms}{\stackrel{m.s.}{\longrightarrow}}
 \newcommand{\iid}{\stackrel{iid}{\sim}}
+\newcommand{\simind}{\stackrel{ind}{\sim}}
 \newcommand{\wtssim}{\stackrel{wts}{\sim}}
 \newcommand{\simapprox}{\stackrel{approx.}{\sim}}
 \newcommand{\eqas}{\stackrel{a.s.}{=}}
@@ -84,33 +85,34 @@ where $\mathcal{W}$ represents the DWT in matrix form. Thus:
   \mathbf{d} | \mathbf{w}, \Sigma_{w}, \Sigma_{d} \sim
    N\left(\left[\Sigma_{d}^{-1}+\Sigma_{w}^{-1}\right]^{-1}\left[\Sigma_{w}^{-1}\mathbf{w}\right],\left[\Sigma_{d}^{-1}+\Sigma_{w}^{-1}\right]^{-1}\right) .
 \end{align*}
-This illustrates the shrinkage of the wavelet coefficients toward zero by an amount controlled by $\Sigma_{w}$. Typically $\Sigma_{w}$ would be specified to ensure a large amount of shrinkage for high-resolution coefficients, and minimal shrinkage for low-resolution coefficients (and would be diagonal). In practice as well, variances can be pooled across resolution levels to yield: 
+This illustrates the shrinkage of the wavelet coefficients toward zero by an amount controlled by $\Sigma_{w}$. Typically $\Sigma_{w}$ would be specified to ensure a large amount of shrinkage for high-resolution coefficients, and minimal shrinkage for low-resolution coefficients (and would be diagonal). In practice as well, means and variances can be pooled across resolution levels to yield: 
 \begin{align*}
-  w_{km} \sim N\left(d_{km},\sigma^{2}_{w,m}\right) , \qquad
-  d_{km} \sim N\left(0,\sigma^{2}_{d,m}\right) , \qquad 
-  \sigma^{2}_{w,m} \sim \textrm{Inv-}\chi^{2}(\nu_{0},s^{2}) .
+  w_{km} | d_{k},\sigma^{2}_{w,k} \simind N\left(d_{k},\sigma^{2}_{w,k}\right) , \qquad
+  d_{k} \simind N\left(0,\sigma^{2}_{d,k}\right) , \qquad 
+  \sigma^{2}_{w,k} \sim \textrm{Inv-}\chi^{2}(\nu_{0},s^{2}) .
 \end{align*}
 Thus:
 \begin{align*}
-  d_{km} | w_{km}, \sigma^{2}_{w,m}, \sigma^{2}_{d,m} \sim
-   N\left(\frac{(\sigma^{2}_{w,m})^{-1}w_{km}}{(\sigma^{2}_{d,m})^{-1}+(\sigma_{w,m}^{2})^{-1}},\frac{1}{(\sigma^{2}_{d,m})^{-1}+(\sigma_{w,m}^{2})^{-1}}\right) .
+  d_{k} | \left\{w_{k1},\ldots,w_{kn_{k}}\right\}, \sigma^{2}_{w,k}, \sigma^{2}_{d,k} \sim
+   N\left(\frac{ \frac{\sum_{m}w_{km}}{\sigma^{2}_{w,k}} }{ {\frac{1}{\sigma^{2}_{d,k}}+\frac{n_{k}}{\sigma_{w,k}^{2}}} }, 
+   \frac{1}{\frac{1}{\sigma^{2}_{d,k}}+\frac{n_{k}}{\sigma_{w,k}^{2}}}\right) .
 \end{align*}
 For levels with little or no shrinkage we obtain:
 \begin{align*}
-  d_{km} | w_{km}, \sigma^{2}_{w,m}, (\sigma^{-2}_{d,m}\approx{}0) \simapprox
-   N\left(w_{km},\sigma_{w,m}^{2}\right) ,
+  d_{k} | \left\{w_{k1}\ldots,w_{kn_{k}}\right\}, \sigma^{2}_{w,k}, (\sigma^{-2}_{d,k}\approx{}0) \simapprox
+   N\left(\bar{w}_{k},\sigma_{w,k}^{2}\right) ,
 \end{align*}
-and for levels with a high degree of shrinkage, the posterior for $d_{km}$ is concentrated around zero. For the time being, lets just consider $\Sigma_{d}$ (and possibly $\Sigma_{w}$ as well) to be specified by the analyst. Note that $\mathbf{f}$ and $\mathbf{w}$ are one-to-one so that:
+where $\bar{w}_{k}=\sum_{m}w_{km}$. For levels with a high degree of shrinkage, the posterior for $d_{k}$ is concentrated around zero. For the time being, lets just consider $\Sigma_{d}$ (and possibly $\Sigma_{w}$ as well) to be specified by the analyst. Note that $\mathbf{f}$ and $\mathbf{w}$ are one-to-one so that:
 
-This version of the full model either has parameters $\theta=\left\{\psi,\omega\right\}$ or $\theta=\left\{\psi,\omega,\Sigma^{2}_{w}\right\}$ depending upon how the wavelet coefficients are modeled. The likelihood is given by:
+This version of the full model either has parameters $\theta=\left\{\psi,\omega\right\}$ or $\theta=\left\{\psi,\omega,\Sigma_{w}\right\}$ depending upon how the wavelet coefficients are modeled. The likelihood is given by:
 \begin{align}
- p(y,f,d|\theta) &= p(y|f,\omega,\psi)p(f|d,\Sigma^{2}_{w})p(d) , \\
+ p(y,f,d|\theta) &\propto p(y|f,\omega,\psi)p(f|d,\Sigma_{w})p(d) , \\
  \Rightarrow{} \qquad p(y|\theta) &= \int{}p(y,f,d|\theta)df\,dd ,
 \end{align}
 again, the full Bayesian version simply requires a prior on all components of $\theta$ and may be preferable. 
 \begin{align}
 \label{joint_posterior} 
- p(f,d,\theta|y) &= p(y|f,\omega,\psi)p(f|d,\Sigma^{2}_{w})p(d)p(\psi,\omega,\Sigma^{2}_{w}) ,  \\
+ p(f,d,\theta|y) &\propto p(y|f,\omega,\psi)p(f|d,\Sigma^{2}_{w})p(d)p(\psi,\omega,\Sigma_{w}) ,  \\
  \Rightarrow{} \qquad p(\theta|y) &= \int{}p(f,d,\theta|y)df\,dd ,
 \end{align}
 The form of~\eqref{joint_posterior} lends itself to a natural Gibbs sampler of the form:
@@ -129,14 +131,14 @@ where the conditioning on $y$ throughout is dropped for brevity. Let us briefly 
 \item Sampling from $d|f,\Sigma^{2}_{w}$: This is just multivariate normal. The current value of $f$ is transformed to the wavelet domain, and then the mean of $d$ is given by a shrunken version of the wavelet coefficients corresponding to the shrinkage induced by the relative weights of $\Sigma^{2}_{w}$ and $\Sigma^{2}_{d}$. 
 \item Sampling from $\Sigma^{2}_{w}|d,f$: This just amounts to sampling from the posterior distribution of the covariance parameters of a multivariate normal. If the covariance is diagonal (which it will be) or fully unstructured then, with a conjugate prior this can be sampled exactly (Inverse-$\chi^{2}$). For parametrized non-diagonal matrices it can be sampled using e.g., MH.
 \end{itemize}
-To make things more concrete, consider the special case with $n$ evenly-spaced osbervations (no missing data), 
+To make things more concrete, consider the special case with $n$ evenly-spaced osbervations, with no missing data, 
 \begin{gather*}
- \Sigma_{\epsilon}(\psi) = \sigma^{2}I , \qquad \Sigma_{d} = \textrm{diag}\left(\sigma^{2}_{d,1},\ldots,\sigma^{2}_{d,1},\sigma^{2}_{d,2},\ldots,\sigma^{2}_{d,J}\right) , \\
+ \Sigma_{\epsilon}(\psi) = \sigma^{2}_{\epsilon}I , \qquad \Sigma_{d} = \textrm{diag}\left(\sigma^{2}_{d,1},\ldots,\sigma^{2}_{d,1},\sigma^{2}_{d,2},\ldots,\sigma^{2}_{d,J}\right) , \\
  \Sigma_{w} = \textrm{diag}\left(\sigma^{2}_{w,1},\ldots,\sigma^{2}_{w,1},\sigma^{2}_{w,2},\ldots,\sigma^{2}_{w,J}\right) ,
 \end{gather*}
 where the elements of $\Sigma_{d}$ are specified constants. Full details of the sampling procedure for this special case are given below:
 \begin{itemize}
-\item Sampling from $\sigma^{2}|f,\omega$: With a conjugate prior $\sigma^{2}\sim\textrm{Inv-}\chi^{2}(\nu_{0},s_{0}^{2})$ on $\sigma^{2}$ we obtain the posterior:
+\item Sampling from $\sigma^{2}_{\epsilon}|f,\omega$: With a conjugate prior $\sigma^{2}\sim\textrm{Inv-}\chi^{2}(\nu_{0},s_{0}^{2})$ on $\sigma^{2}$ we obtain the posterior:
 \begin{align*}
  \sigma^{2} | f,\omega \sim \textrm{Inv-}\chi^{2}(\nu_{n},s_{n}^{2}) ,
 \end{align*} 
@@ -144,24 +146,41 @@ where
 \begin{align*}
  \nu_{n} = \nu_{0} + n , \qquad s_{n}^{2} = \frac{\nu_{0}s_{0}^{2}+(y-f)^{T}(y-f)}{\nu_{n}} .
 \end{align*}
-\item Sampling from $\omega|\psi,f$: This will not be in closed form and other methods (e.g., MH) will be needed. Intuitively, varying $\omega$ given $f$ varies the value of $m(t)$, so values of $\omega$ that yield $m$ to be an appropriate mean for $y$ (given $\psi$) will be favored.
+\item Sampling from $\omega|\sigma^{2}_{\epsilon},f$: This will not be in closed form and other methods (e.g., MH) will be needed. Intuitively, varying $\omega$ given $f$ varies the value of $m(t)$, so values of $\omega$ that yield $m$ to be an appropriate mean for $y$ (given $\psi$) will be favored.
 \item Sampling from $f|d,\omega,\psi,\Sigma^{2}_{w}$: Since,
 \begin{align*}
-f|d,\Sigma_{w} \sim N\left(\mathcal{W}^{-1}d,\mathcal{W}^{-1}\Sigma_{w}\mathcal{W}^{-T}\right) , \qquad 
+f|d,\Sigma_{w} \sim N\left(\mathcal{W}^{T}d,\mathcal{W}^{T}\Sigma_{w}\mathcal{W}\right) , \qquad 
 y|f \sim N\left((I-Q)f,\Sigma_{\epsilon}\right) 
 \end{align*}
 Therefore:
 \begin{align*}
  f | y,d,\Sigma_{w} &\sim N\left(\mu_{f},\Sigma_{f}\right) , \\
- \Sigma_{f}^{-1} &= \mathcal{W}^{T}\Sigma_{w}^{-1}\mathcal{W} + (I-Q)\Sigma_{\epsilon}^{-1}(I-Q) ,\\
- \mu_{f} &= \Sigma_{f}\left[ \mathcal{W}^{T}\Sigma_{w}^{-1}d + (I-Q)\Sigma_{\epsilon}^{-1}y\right] .
+ \Sigma_{f}^{-1} &= \mathcal{W}^{T}\Sigma_{w}^{-1}\mathcal{W} + \frac{1}{\sigma^{2}_{\epsilon}}(I-Q)(I-Q) ,\\
+ \mu_{f} &= \Sigma_{f}\left[ \mathcal{W}^{T}\Sigma_{w}^{-1}d + \frac{1}{\sigma^{2}_{\epsilon}}(I-Q)y\right] .
 \end{align*}
-Note that if $\Sigma_{w}=\sigma^{2}_{w}I$ then $\Sigma_{f}$ is diagonal and $\mathcal{W}^{T}d$ is the IDWT of $d$.
+Note that if $\Sigma_{w}=\sigma^{2}_{w}I$ then $\Sigma_{f}$ is diagonal and $\mathcal{W}^{T}d$ is the IDWT of $d$. For the more general case, $\Sigma_{w}^{-1}d$ is essentially a standardized vector of the mean wavelet coefficients at different scales. Equivalently, we can work with $w$: 
+\begin{align*}
+w|d,\Sigma_{w} \sim N\left(d,\Sigma_{w}\right) , \qquad 
+y|w \sim N\left((I-Q)\mathcal{W}^{T}w,\Sigma_{\epsilon}\right) .
+\end{align*}
+Therefore:
+\begin{align*}
+w|d,\Sigma_{w} \sim N\left(d,\Sigma_{w}\right) , \qquad 
+y|w \sim N\left((I-Q)\mathcal{W}^{T}w,\Sigma_{\epsilon}\right) ,
+\end{align*}
+therefore,
+\begin{align*}
+ w| y,d,\Sigma_{w} &\sim N\left(m_{w},V_{f}\right) , \\
+ V_{f}^{-1} &= \Sigma_{w}^{-1} + \mathcal{W}(I-Q)\Sigma_{\epsilon}^{-1}(I-Q)\mathcal{W}^{T} ,\\
+ m_{f} &= V_{f}\left[ \Sigma_{w}^{-1}d + \mathcal{W}(I-Q)\Sigma_{\epsilon}^{-1}y\right] .
+\end{align*}
+
 \item Sampling from $d|f,\Sigma^{2}_{w}$: Let $w=\mathcal{W}f$, then:
 \begin{align*}
- \mathbf{d} | \mathbf{w}, \Sigma_{w}, \Sigma_{d} \sim
-   N\left(\left[\Sigma_{d}^{-1}+\Sigma_{w}^{-1}\right]^{-1}\left[\Sigma_{w}^{-1}\mathbf{w}\right],\left[\Sigma_{d}^{-1}+\Sigma_{w}^{-1}\right]^{-1}\right) .
- \end{align*}
+  d_{k} | \left\{w_{k1},\ldots,w_{kn_{k}}\right\}, \sigma^{2}_{w,k}, \sigma^{2}_{d,k} \sim
+   N\left(\frac{ \frac{\sum_{m}w_{km}}{\sigma^{2}_{w,k}} }{ {\frac{1}{\sigma^{2}_{d,k}}+\frac{n_{k}}{\sigma_{w,k}^{2}}} }, 
+   \frac{1}{\frac{1}{\sigma^{2}_{d,k}}+\frac{n_{k}}{\sigma_{w,k}^{2}}}\right) .
+\end{align*}
  Note that both $\Sigma_{w}$ and $\Sigma_{d}$ are diagonal, so there are no matrix inversions in this step.
 \item Sampling from $\Sigma^{2}_{w}|d,f$: With independent conjugate priors on each $\sigma^{2}_{w,j}\sim\textrm{Inv-}\chi^{2}(\nu_{w,j,0},s_{w,j,0}^{2})$ on each $\sigma^{2}_{w,j}$ for $j=1,\ldots,J$ we obtain:
 \begin{align*}
@@ -175,7 +194,36 @@ Here $n_{j}$ is the number of coefficients in level $j$ of the wavelet decomposi
 \end{itemize}
 
 \section{Missing Data}
-Handling missing data in the time domain. Straightforward: write up.
+The model outlined in the previous sections can be extended to handle missing data in the time domain. Let $t_{mis}=\left\{t_{mis,1},\ldots,t_{mis,n_{mis}}\right\}$ denote the set of time points for which the value of $Y(t)$ was not observed, similarly for $t_{obs}$. We introduce some new notation:
+\begin{align*}
+  y_{com} = y , \qquad
+  y_{mis} = \left(\begin{array}{c} y(t_{mis,1}) \\ y(t_{mis,2}) \\ \cdots \\ y(t_{mis,n_{mis}}) \end{array}\right) , \qquad
+  y_{obs} = \left(\begin{array}{c} y(t_{obs,1}) \\ y(t_{obs,2}) \\ \cdots \\ y(t_{obs,n_{mis}}) \end{array}\right) .
+\end{align*}
+Here $Y_{mis}$ becomes another latent variable to be integrated out in the posterior distribution. The full posterior from~\eqref{joint_posterior} then becomes:
+\begin{align}
+\label{joint_posterior_missing_data} 
+ p(f,d,y_{mis},\theta|y_{obs}) &\propto p(y_{com}|f,\omega,\psi)p(f|d,\Sigma^{2}_{w})p(d)p(\psi,\omega,\Sigma^{2}_{w}) ,  \\
+ \Rightarrow{} \qquad p(\theta|y_{obs}) &= \int{}p(f,d,y_{mis},\theta|y)df\,dd\,dy_{mis} .
+\end{align}
+The form of~\eqref{joint_posterior_missing_data} lends itself to a natural Gibbs sampler of the form:
+\begin{align*}
+ \left[y_{mis}|y_{obs},\psi,f\right] , \quad
+ \left[\psi|f,\omega,y_{com}\right] , \quad
+ \left[\omega|\psi,f,y_{com}\right] , \quad
+ \left[f|d,\omega,\psi,\Sigma^{2}_{w},y_{com}\right] , \quad
+ \left[d|f,\Sigma^{2}_{w}\right] , \quad 
+ \left[\Sigma^{2}_{w}|d,f\right] .
+\end{align*}
+where the conditioning on $y_{obs}$ and $y_{mis}$ is now made explicit throughout. Since all previous derivations hold for the complete data, the only additional sampling step is to sample $y_{mis}$ from the conditional posterior distribution. Fortunately, by standard normal theory, $Y_{mis}$ is just normal. Let $\Sigma_{\epsilon,oo}(\psi)$ and $\Sigma_{\epsilon,mm}(\psi)$ denote the submatrices of the covariance matrix $\Sigma_{\epsilon}(\psi)$ that correspond to the observed and missing matrices respectively. Similarly, let $\Sigma_{\epsilon,om}=\Sigma_{\epsilon,mo}^{T}$ denote the covariance matrix between the observed and missing portions of the data.  Let:
+\begin{align*}
+\mu_{obs} = (I-Q_{obs})f_{obs} , \qquad \mu_{mis} = (I-Q_{mis})f_{mis} ,
+\end{align*}
+where $Q_{obs}$, $Q_{mis}$, $f_{obs}$ and $f_{mis}$ are the subcomponents of $Q$ and $f$ corresponding to the observed and missing components respectively. The conditional distribution of $Y_{mis}$ can then be seen to be: 
+\begin{align*}
+ Y_{mis} | y_{obs}, \psi, f \sim N\left( \mu_{mis} + \Sigma_{\epsilon,mo}\Sigma_{\epsilon,}^{-1}(y_{obs}-\mu_{obs}), \Sigma_{\epsilon,mm} - \Sigma_{\epsilon,mo}\Sigma_{\epsilon,oo}^{-1}\Sigma_{\epsilon,om} \right) .
+\end{align*} 
+
 
 \section{Searching for Transits: Finding Candidate Period/Phase Configurations}
 
