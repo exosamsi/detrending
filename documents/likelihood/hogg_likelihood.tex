@@ -1,3 +1,12 @@
+% notes:
+% ------
+% - use symbol macros, not letters, in equations
+% - use \eqnarray not \equation
+
+% to-do:
+% ------
+% - 
+
 \documentclass[12pt,letterpaper]{article}
 
 % close up itemize
@@ -47,7 +56,8 @@
 
 \begin{document}\sloppy\sloppypar
 
-\section*{A partially marginalized likelihood for exoplanet inference}
+\section*{A partially marginalized likelihood\\
+          for exoplanet inference}
 
 \noindent
 David W. Hogg (NYU) \\
@@ -211,7 +221,7 @@ p(\datavec\given\exopars,\hyperpars)
   &\equiv& \meanflux\,[\onevec - \exovec]
 \\
 \vartensor
-  &\equiv& \noisetensor + \weightmatrix\cdot\transpose{\wavetensor}\cdot{\weightmatrix}
+  &\equiv& \noisetensor + \transpose{\weightmatrix}\cdot\wavetensor\cdot{\weightmatrix}
 \label{eq:variance}
 \quad ,
 \end{eqnarray}
@@ -236,8 +246,8 @@ each of which is diagonal (but in different bases).  Some notes:
 In this way of thinking about it, the wavelet-amplitude diagonal
 variance tensor $\wavetensor$ is part of the hyperparameter blob
 $\hyperpars$.
-With an additional hyperparameters in this blob,
-and choices about hyperpriors on the hyperpriors,
+With additional hyperparameters in this blob,
+and choices about hyperpriors on the hyperparameters,
 the variability model itself can be marginalized out.
 This may indeed become one of our goals below.
 
@@ -245,12 +255,13 @@ This may indeed become one of our goals below.
 The form (\ref{eq:variance}) for the variance tensor assumes diagonality
 but does not yet capitalize on the frequency and location of the wavelets.
 The idea that the variances will depend on the freqency index but \emph{not} the location index.
-That means that diagonal tensor $\wavetensor$ will have repeated elements; the number of
-free parameters will be far smaller than the number of wavelet amplitudes in $\wavevec$.
+That means that diagonal tensor $\wavetensor$ will have repeated elements;
+the number of free parameters in $\wavetensor$
+will be far smaller than the number of wavelet amplitudes in $\wavevec$.
 
 \textsl{(c)}~%
 For many wavelet bases, the number $K$ of distinct frequencies $k$ is only of order $\log_2(N)$,
-where $N$ is the number of parameters.
+where $N$ is the number of data points in the lightcurve.
 This means that even a non-parametric form for $\wavetensor$
 will only grow logarithmically with the size of the data set.
 
@@ -268,7 +279,8 @@ both by removing rows that correspond to wavelet scales at which we expect no po
 (more on this below),
 and by removing columns that correspond to data locations at which there are no observations
 (vanishing $1/\variance_n$).
-Finally, If we drop columns that correspond to contiguous intervals of data locations,
+Finally, If we drop columns in blocks
+(corresponding to contiguous intervals of data locations),
 there will in general be some ``unsupported'' wavelet components.
 These orphaned rows ought to also be dropped to keep relevant matrices full-rank.
 These changes break orthonormality and completeness of the basis,
@@ -280,7 +292,7 @@ the wavelet basis $\weightmatrix$ as fixed,
 but parameterize and permit to be fit the Gaussian Process variance tensor $\wavetensor$,
 parameterized in a form that makes the variances sensitive to scale but not location.
 
-\section{\Kepler\ specifics}
+\section{\Kepler\ lightcurve specifics}
 
 My proposal---it can't be described as ``our proposal'' just yet---%
 is to do the following violence to the model to keep the core ideas,
@@ -303,6 +315,13 @@ of the $\weightmatrix$, for the purposes of computing the \emph{exoplanet transi
 treat the data as coming from the true, non-uniform grid in BJD.
 That is, we will be able to use ``out of the box'' code to generate the wavelet transform
 matrix $\weightmatrix$.
+
+\warning{Our non-parametric form for $\wavetensor$ is just to give one variance $\variance_k$
+         to every wavelet frequency scale $k$.
+         That's the most flexible possible model;
+         it only has of order $\log_2(N)$ parameters.}
+
+\warning{Let's show here that the wavelet coefficients do have low autocorrelation amplitude.}
 
 \section{Search}
 
