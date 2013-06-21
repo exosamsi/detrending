@@ -1,0 +1,409 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage{amsmath, amsthm, amssymb, fancyhdr, fancybox, graphicx,psfrag,dcolumn,bm,accents,setspace,textcomp,url,color,wasysym}
+\setlength{ \oddsidemargin} {-.4in}
+\setlength{ \evensidemargin} {-.4in}
+\setlength{ \topmargin}{-0.5in}
+\setlength{ \textwidth} {6.5in}
+\setlength{ \textheight} {9.5 in}
+\newtheorem{thm}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+\newtheorem{identity}{Identity}
+\newtheorem{defn}{Definition}
+\newcommand{\argmax}{\operatornamewithlimits{argmax}}
+\newcommand{\argmin}{\operatornamewithlimits{argmin}}
+\newcommand{\dist}{\operatornamewithlimits{\sim}}
+\newcommand{\converges}{\operatornamewithlimits{\longrightarrow}}
+\newcommand{\cprob}{\stackrel{p}{\longrightarrow}}
+\newcommand{\cdist}{\stackrel{d}{\longrightarrow}}
+\newcommand{\cprobanddist}{\stackrel{p,d}{\longrightarrow}}
+\newcommand{\cas}{\stackrel{a.s.}{\longrightarrow}}
+\newcommand{\crth}{\stackrel{r}{\longrightarrow}}
+\newcommand{\cone}{\stackrel{1}{\longrightarrow}}
+\newcommand{\cms}{\stackrel{m.s.}{\longrightarrow}}
+\newcommand{\iid}{\stackrel{iid}{\sim}}
+\newcommand{\simind}{\stackrel{ind}{\sim}}
+\newcommand{\wtssim}{\stackrel{wts}{\sim}}
+\newcommand{\simapprox}{\stackrel{approx.}{\sim}}
+\newcommand{\eqas}{\stackrel{a.s.}{=}}
+\newcommand{\eqdist}{\stackrel{d}{=}}
+\def\Var{{\rm Var}\,}
+\def\E{{\rm E}\,}
+\def\Ycom{Y_{com}}
+\def\Wish{{\rm Wishart}\,}
+\def\IWish{{\rm Inv-Wishart}\,}
+\def\Po{{\rm Pois}\,}
+\def\Nb{{\rm Neg-Bin}\,}
+\def\Gm{{\rm Gamma}\,}
+\begin{document}
+\title{Modeling Ideas: Transit Modeling for Kepler Light Curves}
+\author{Paul Baines}
+\date{\today}
+\maketitle
+
+\emph{Disclaimer: These are just preliminary ideas. There are likely to be typos etc. throughout the document. Use at your own risk. \smiley}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Modeling Simple Aperture Photometry Kepler Light Curves}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Consider a random process $Y$ defined as a function of time and depending on unknown parameter(s) $\theta$ i.e., $Y(t|\theta)$. For simplicity let $\theta=(\eta,\psi,\xi)$ and $\mathcal{T}$ be the interval on which the process is defined. We assume that:
+\begin{align}
+\label{eq:main_def}
+ Y_{sap}(t) &= m_{sap}(t|\phi,\eta,\xi) + \epsilon_{sap}(t|\psi) , \qquad \forall \, t \in \mathcal{T} \\
+ m_{sap}(t|\phi,\eta,\xi) &= (\mu(t|\phi)+a(t|\xi)) + (1 - \tilde{q}(t|\eta)) , 
+\end{align}
+where $\epsilon(t|\psi)$ is a mean-zero random process, $\mu(t|\phi)$ is an overall mean corresponding to low-frequency image artifacts (i.e., the objects to be removed by detrending), $a(t|\xi)$ is a random process designed to capture any remaining non-transit-related signals (probably astrophysical) remaining after detrending,  and $\tilde{q}(t|\eta)$ is the reduction in the expected intensity due to the transit i.e., $\tilde{q}(t|\eta)\equiv{}0$ if there are no transits. In the event of a transit we observe a version of $m(t|\xi)$ \lq{}dampened\rq{} by an additive amount $\tilde{q}(t|\eta)$. Typically, for detrended data the component $\mu(t|\phi)$ is divided out to give:
+\begin{align}
+\label{eq:detrended_model}
+ Y_{d}(t) = \frac{Y_{sap}(t)}{\mu(t|\phi)} &= m_{d}(t|\phi,\eta,\xi) + \epsilon_{d}(t|\phi,\psi) , \qquad \forall \, t \in \mathcal{T} \\
+ \nonumber
+ m_{d}(t|\phi,\eta,\xi) &= \left(1+\frac{a(t|\xi)}{\mu(t|\phi)}\right) + \frac{1-\tilde{q}(t|\eta)}{\mu(t|\phi)} \equiv (1+f(t|\phi,\xi)) + (1-q(t|\phi,\eta)) , \\
+\label{eq:redetrend}
+ \epsilon_{d}(t|\phi,\psi) &\equiv \frac{\epsilon_{sap}(t|\psi)}{\mu(t|\phi)} , \qquad f(t|\phi,\xi) = \frac{a(t|\xi)}{\mu(t|\phi)} , \quad 1-q(t|\phi,\eta) = \frac{1-\tilde{q}(t|\eta)}{\mu(t|\phi)} .
+\end{align}
+In this detrended setting the interpretation of $q$ switches to a multiplicative reduction in the signal, and $f(t|\phi,\xi)$ models the astrophysical processes (and other artefacts not removed by detrending). 
+
+\section{Modeling Detrended Kepler Light Curves}
+For simplicity we now focus on fitting detrended light curves of the form shown in~\eqref{eq:detrended_model} and drop the subscripts for notational brevity. Our model for this section will be:
+\begin{align}
+\label{eq:simpler_detrended_model}
+ Y(t) &= (1+f(t|\xi)) + (1-q(t|\eta)) + \epsilon(t) , \qquad \forall \, t \in \mathcal{T} .
+\end{align}
+There is a trade-off in the complexity we place in $f$ and in $\epsilon$, but for our purposes we assume a mean-zero Gaussian process for $\epsilon$:
+\begin{align}\label{eq:noise_model}
+\epsilon(t)|\psi \sim \textrm{GP}\left(0,\Sigma_{\epsilon}(\psi)\right) ,
+\end{align}
+where $\Sigma_{\epsilon}(t_{i},t_{j}|\psi)=K(|t_{i}-t_{j}|;\psi)$ i.e., stationary covariance. Although the form in~\eqref{eq:noise_model} is fairly rich, in practice we will usually assume either independent noise with constant variance, or independent noise with different variances for each quarter to reflect CCD changes i.e.,
+\begin{align*}
+  \Sigma_{\epsilon}(t_{i},t_{j}|\psi)=\sigma_{q(t_{i})}^{2}\delta_{t_{i}t_{j}}
+ \end{align*}
+ where $q(t_{i})$ is the index corresponding to the quarter in which time point $i$ falls. Although we only observe a noisy version of $(1+f)(1-q)$, the goal is to \lq{}separate\rq{} this underlying mean into two pieces: one representing \lq{}transit-like variation\rq{}, the other representing \lq{}everything else\rq{}. Fortunately we are able to approximate the form of $q$ parametrically. Let $t_{0}$ denote the time of the first transit, $t_{d}$ the transit duration, $\alpha$ the multiplicative reduction in the signal and $P$ the period. Then we assume:
+\begin{align*}
+ q(t|\eta) = \left\{ \begin{array}{cl}
+ 0 & \textrm{ if } (t\bmod{P}) \notin{} \left[t_{0},t_{0}+t_{d}\right] \\
+ \alpha & \textrm{ if }  (t\bmod{P}) \in \left[t_{0},t_{0}+t_{d}\right] 
+ \end{array}\right. ,
+\end{align*}
+where $\eta=\left\{t_{0},t_{D},\alpha,P\right\}$. More sophisticated models for the transit could also be used to allow for smooth transits. The remaining modeling task is to decide upon a structure for $f$. The complexity of $f$ and $\epsilon$ is heavily dependent on the detrending process, and thus we would prefer to jointly model the detrending and transit signal, something we discuss in section~\ref{sec:joint_modeling}. Even with aggressive detrending we still would like to have flexible models are required to capture all possible remaining instrumental and astrophysical signals. To try to achieve this, we decide to model $f$ in the wavelet domain. For computational tractability we apply wavelet transforms to each quarter of data separately. Let $y_{r}$, $f_{r}$ and $q_{r}$ denote subvectors of $y$, $f$ and $q$ that correspond to quarter $r=1,\ldots,R$. 
+\begin{align}
+ Y_{r}(t) &= (1+f_{r}(t|\xi)) + (1-q_{r}(t|\eta)) + \epsilon_{r}(t) , \\
+ \nonumber
+ \Rightarrow \quad (y_{r}-1) - (1-q_{r}) &= f_{r}  + \epsilon_{r} ,\\
+ \Rightarrow \quad (y_{r}-1) - f_{r} &= 1-q_{r}  + \epsilon_{r} ,
+\end{align}
+Taking the DWT, $\mathcal{W}$, of both sides gives:
+\begin{align}
+ \tilde{y}_{r}(q_{r}) = w_{r}  + \epsilon_{r} , \quad \textrm{ and } , \quad
+ \tilde{y}_{r}(f_{r}) = (1-q_{r})  + \epsilon_{r} ,
+\end{align}
+where $w_{r}=\mathcal{W}f_{r}$, $\tilde{y}_{r}(q_{r})=\mathcal{W}((y_{r}-1)-(1-q_{r}))$ and $\tilde{y}_{r}(f_{r})=\mathcal{W}((y_{r}-1)-f_{r})$. Since $\mathcal{W}\mathcal{W}^{T}=I$, this yields:
+\begin{align}
+\label{eq:tilde_y_model}
+\tilde{y}_{r}(q_{r}) | w_{r} \sim N\left(w_{r},\sigma_{r}^{2}I\right) , \quad \textrm{ and } , \quad
+\tilde{y}_{r}(f_{r}) | f_{r} \sim N\left(1-q_{r},\sigma_{r}^{2}I\right) . 
+\end{align}
+To pool information across quarters we assume a hierarchical structure for the $w_{r}$:
+\begin{align}
+\label{eq:w_model}
+w_{r} | d &\simind N\left(Ad,A\Sigma_{w}A^{T}\right) ,
+\end{align}
+where $A$ is a $n_{q}\times{}n_{d}$ matrix that allows for extra pooling within wavelet scales across time periods. If $A$ is the identity matrix then $d$ is an $n_{q}\times{}1$ vector, and the full model contains $n_{q}+p$ parameters where $n_{q}$ is the number of time points per quarter ($\approx{}4320$) and $p$ is the number of additional parameters. In this context, in the special case that $A$ contains zeros and a single one per row, then $Ad$ is a vector that contains one of the $d_{j}$'s in each position, and $A\Sigma_{w}A^{T}$ is an $n_{q}\times{}n_{q}$ diagonal matrix with one of the $d_{j}$'s on the diagonal. The parameters of the model are therefore $\theta=\left\{\psi,\eta,d,\Sigma_{w}\right\}$ where $\psi=\left\{\sigma^{2}_{1},\ldots,\sigma^{2}_{r}\right\}$ and $d=\left\{d_{1},\ldots,d_{n_{d}}\right\}$ and $\Sigma_{w}=\left\{\sigma^{2}_{1},\ldots,\sigma^{2}_{n_{d}}\right\}$. With $4$ transit parameters, the model contains a total of $4+R+2n_{d}$. 
+
+\subsection{Computational Details}
+The likelihood for this version of the model is given by:
+\begin{align}
+ p(y,w|\theta) &\propto p(y|w,\eta,\psi)p(w|d,\Sigma_{w}) , \\
+ \nonumber
+ \Rightarrow{} \qquad p(y|\theta) &= \int{}p(y,w|\theta)dw .
+\end{align}
+The full Bayesian version simply requires a prior on all components of $\theta$ and may be preferable,
+\begin{align}
+\label{joint_posterior} 
+ p(\theta,w|y) &\propto p(y|w,\eta,\psi)p(w|d,\Sigma_{w})p(\psi,\eta,d,\Sigma_{w}) ,  \\
+ \nonumber
+ \Rightarrow{} \qquad p(\theta|y) &= \int{}p(w,\theta|y)df ,
+\end{align}
+The form of~\eqref{joint_posterior} lends itself to a natural Gibbs sampler of the form:
+\begin{align*}
+ \left[\psi|w,\eta,y\right] , \quad
+ \left[\eta|\sigma^{2},w\right] , \quad
+ \left[w|\eta,\psi,d,\Sigma_{w}\right] , \quad
+ \left[d|\eta,\psi,w,\Sigma_{w}\right] , \quad 
+ \left[\Sigma_{w}|d,w\right] .
+\end{align*}
+Combining~\eqref{eq:tilde_y_model} and~\eqref{eq:w_model} we obtain:
+\begin{align}
+\label{eq:marginal_model}
+\tilde{y}_{r}(q_{r}) | \psi, \eta  &\sim N\left(Ad,W_{i}^{-1}(\Sigma_{w},\sigma_{r}^{2})\right) , \\
+W_{r} &= \left[\sigma_{r}^{2}I + A\Sigma_{w}A^{T}\right]^{-1} ,
+\end{align}
+which allows us to sample from the conditional posterior of all elements of $d$ directly, without conditioning on $w$. This is analogous to methods for sampling in normal-normal hierarchical models. 
+\subparagraph{Sampling $\psi$:} Placing a conjugate prior on $\sigma^{2}_{r}$ of the form $\sigma^{2}_{r}\sim\textrm{Inv-}\chi^{2}(\nu_{r,0},s_{r,0}^{2})$ we can integrate out $w$ to obtain the partially marginalized posterior.
+\begin{align*}
+ \sigma^{2}_{r} | d,\eta,\Sigma_{w} \sim \textrm{Inv-}\chi^{2}(\nu_{r,n},s_{r,n}^{2}) ,
+\end{align*} 
+where 
+\begin{align*}
+ \nu_{r,n} &= \nu_{r,0} + n_{d} , \\
+ s_{r,n}^{2} &= \frac{\nu_{r,0}s_{r,0}^{2}+(\tilde{y}_{r}(q_{r})-w_{r})^{T}(\tilde{y}_{r}(q_{r})-w_{r})}{\nu_{r,0}+n_{d}} .
+\end{align*}
+\subparagraph{Sampling $\eta$:} Sampling for the parameters controlling the transit cannot be done in closed form. However, from~\eqref{eq:tilde_y_model}, we see that values of $\eta$ that produce transits that match features of $\tilde{y}_{r}(f_{r})$ will be given higher posterior probabilities. Note that this accounts for data across all quarters, while also allowing for different noise variances for each quarter of Kepler observations. Simple box-least squares (BLS) algorithms can be used to generate a proposal distribution for $\eta$, or random walk proposals can be used if the chain is in the neighborhood of non-negligible posterior density. More efficient algorithms for exploring the parameter space may be available, but we defer discussion of these until testing on real data.  
+\subparagraph{Sampling $w$:} Recall that we have:
+\begin{align*}
+\tilde{y}_{r}(q_{r}) | w_{r}  \sim N\left(w_{r},\sigma_{r}^{2}I\right) , \qquad
+w_{r} | d \simind N\left(Ad,A\Sigma_{w}A^{T}\right) ,
+\end{align*}
+so:
+\begin{align}\label{eq:w_posterior}
+w_{r} | \tilde{y}_{r}(q_{r}), \sigma^{2}_{r}, \Sigma_{w}  \sim N\left(m_{w,r},V_{w,r}\right) , 
+\end{align}
+where:
+\begin{align*}
+ m_{w,r} &= V_{w,r} \left[ \frac{\tilde{y}_{r}(q_{r})}{\sigma^{2}_{r}} + \left[A\Sigma_{w}A^{T}\right]^{-1}Ad\right]^{-1} ,\\
+ V_{w,r} &= \left[ \frac{1}{\sigma^{2}_{r}}I + \left[A\Sigma_{w}A^{T}\right]^{-1}\right]^{-1} .
+\end{align*}
+It can be seen that $V_{w,r}$, so the sampling in~\eqref{eq:w_posterior} can be done very rapidly.
+
+\subparagraph{Sampling $d$:} Assuming a conjugate prior for $d$:
+\begin{align*}
+ d \sim N(m_{d,0},V_{d,0}) ,
+\end{align*}
+then, from the marginal model in~\eqref{eq:marginal_model} we get:
+\begin{align*}
+ d | w,\Sigma_{w} \sim N(m_{d,n},V_{d,n}) ,
+\end{align*}
+where:
+\begin{align*}
+ V_{d,n} &= \left[A^{T}\left(\sum_{r=1}^{R}W_{r}\right)A + V_{d,0}^{-1}\right]^{-1} , \\
+ m_{d,n} &= V_{d,n}\left[A^{T}\sum_{r=1}^{R}W_{r}\tilde{y}_{r}(q_{r}) + V_{d,0}^{-1}m_{d,0}\right] .
+\end{align*}
+Again, it can be seen that if $V_{d,0}$ is diagonal then $V_{d,n}$ is diagonal, so the calculations can be done very rapidly. 
+\subparagraph{Sampling $\Sigma_{w}$:} Placing a conjugate prior on $\sigma^{2}_{w,j}$ of the form $\sigma^{2}_{w,j}\sim\textrm{Inv-}\chi^{2}(\nu_{w,j,0},s_{w,j,0}^{2})$ we can obtain:
+\begin{align*}
+ \sigma^{2}_{w,j}\sim\textrm{Inv-}\chi^{2}(\nu_{w,j,n},s_{w,j,n}^{2}) ,
+\end{align*}
+where $\nu_{w,j,n}$ and $s_{w,j,n}^{2}$ are posterior parameters corresponding to the choice of $A$ matrix (the notation is more involved, but these are straightforward to compute).
+%\begin{align*}
+% \nu_{r,n} &= \nu_{r,0} + n_{d} , \\
+% s_{r,n}^{2} &= \frac{\nu_{r,0}s_{r,0}^{2}+(\tilde{y}_{r}(q_{r})-Ad)^{T}\left[I + A\Sigma_{w}A^{T}\right]^{-1}(\tilde{y}_{r}(q_{r})-Ad)}{\nu_{r,0}+n_{d}} .
+%\end{align*}
+
+\section{Joint Modeling of Detrending and Transit Detection}\label{sec:joint_modeling}
+The framework presented in~\eqref{eq:main_def} and~\eqref{eq:detrended_model} can be used to incorporate the uncertainty in detrending in a number of ways. The simplest approach, and one that can be applied to any probabilistic detrending procedure, is to replace the detrended data $Y_{d}$ with different realizations from the detrending algorithm. If this is done at each iteration, it amounts to integrating over the uncertainty in the detrending. If a small number of deterministic detrenders are considered then the detrended data to be used at each iteration can be selected with equal (or weighted probability) from the list of detrended data. This approach amounts to assuming a discrete distribution for the overall mean term $\mu(t|\phi)$ in~\eqref{eq:main_def}, thus $\phi$ essentially indexes the detrending routine. Note that this approach, while simple to implement, does not fully model the detrending and transit detection elements since it ignores the presence of $\mu(t|\phi)$ in the denominator of the terms in~\eqref{eq:detrended_model}.
+
+To try to model things more fully, recall that:
+\begin{gather*}
+m_{sap}(t|\phi,\eta,\xi) = (\mu(t|\phi)+a(t|\xi)) + (1 - \tilde{q}(t|\eta)) , \\
+\qquad f(t|\phi,\xi) = \frac{a(t|\xi)}{\mu(t|\phi)} , \quad 1-q(t|\phi,\eta) = \frac{1-\tilde{q}(t|\eta)}{\mu(t|\phi)} ,
+\end{gather*}
+so we can rewrite~\eqref{eq:main_def} as:
+\begin{align}
+\label{eq:main_def}
+ Y_{sap}(t) &= \mu(t|\phi)\left[1 + f(t|\phi,\xi) + 1- q(t|\phi,\eta)\right] + \epsilon_{sap}(t|\psi) , \qquad \forall \, t \in \mathcal{T} .
+\end{align}
+The algorithm described in section~\ref{sec:joint_modeling} produces posterior samples from $f$ and $q$, allowing us to divide out the astrophysical and transit effects, and estimate the overall instrumental trends from this \lq{}untrended\rq{} light curve. Note that the errors in $\epsilon_{sap}(t|\psi)$ are also scaled by the divided out astrophysical signal. Fitting the original detrender to: 
+\begin{align}
+\label{eq:alt_main_def}
+\tilde{Y}_{sap}(t) = \frac{Y_{sap}(t)}{\mu(t|\phi)\left[1 + f(t|\phi,\xi) + 1- q(t|\phi,\eta)\right]} ,
+\end{align}
+accounting for the modified error bars, will then produce an updated detrended light-curve that can be sampled from. By iterating this procedure we obtain samples from the joint distribution of detrended curves, astrophysical, transit and noise parameters.
+
+\end{document}
+
+% HERE
+
+ for whichThis full model has parameters $\theta=\left\{\psi,\eta,\Sigma_{w}\right\}$, corresponding to the noise (co)variance parameters, the transit parameters and the variance of the wavelet coefficients describing the noiseless and transit-removed signal. The full model is then just:
+\begin{align}
+\label{y_model}
+ Y(t|\theta) | w, \eta, \sigma^{2} &\sim \textrm{GP}\left(\mathcal{W}w-q(t|\eta),\sigma^{2}\Sigma_{\epsilon}(\psi)\right) , \\
+\label{w_model}
+  w|d,\sigma^{2},\Sigma_{w} &\sim N\left(d,\sigma^{2}\Sigma_{w}\right) , \\
+\label{d_model}
+  d|\Sigma_{d} &\sim N\left(m_{d},\Sigma_{d}\right) .
+\end{align}
+Typically $\Sigma_{w}$ would be specified to ensure a large amount of shrinkage for high-resolution coefficients, and minimal shrinkage for low-resolution coefficients (and would be diagonal). In practice as well, means and variances can be pooled across resolution levels to yield: 
+\begin{align*}
+  w_{km} | d_{k},\sigma^{2},\sigma^{2}_{w,k} \simind N\left(d_{k},\sigma^{2}\sigma^{2}_{w,k}\right) , \qquad
+  d_{k} \simind N\left(0,\sigma^{2}_{d,k}\right) , \qquad 
+  \sigma^{2}_{w,k} \sim \textrm{Inv-}\chi^{2}(\nu_{0},s^{2}) .
+\end{align*}
+Note that this pooling model for the wavelet coefficients corresponding to generalizing~\eqref{w_model} to:
+\begin{align*}
+  w|d,\sigma^{2},\Sigma_{w} &\sim N\left(Ad,\sigma^{2}A\Sigma_{w}A^{T}\right) ,
+ \end{align*}
+ where $A$ is an $n\times{}J$ matrix. For simplicity we denote $\mathbf{d}=Ad$ to be the fully vectorized version of $d$ (i.e., of length $n$)
+\begin{align*}
+ \mathbf{d} = Ad , \qquad A = \left(\begin{array}{cccc} 1 & 0 & \cdots & 0 \\ 1 & 0 & \cdots & 0 \\ 0 & 0 & \cdots & 1 \end{array}\right) .
+\end{align*}  
+To understand the intuition for this pooling, note that:
+\begin{align*}
+  d_{k} | \sigma^{2}, \left\{w_{k1},\ldots,w_{kn_{k}}\right\}, \sigma^{2}_{w,k}, \sigma^{2}_{d,k} \sim
+   N\left(\frac{ \frac{m_{d,k}}{\sigma^{2}_{d,k}} + \frac{\sum_{m}w_{km}}{\sigma^{2}\sigma^{2}_{w,k}} }{ {\frac{1}{\sigma^{2}_{d,k}}+\frac{n_{k}}{\sigma^{2}\sigma_{w,k}^{2}}} }, 
+   \frac{1}{\frac{1}{\sigma^{2}_{d,k}}+\frac{n_{k}}{\sigma^{2}\sigma_{w,k}^{2}}}\right) .
+\end{align*}
+This illustrates the shrinkage of the wavelet coefficients toward zero by an amount controlled by $\Sigma_{w}$. For levels with little or no shrinkage we obtain:
+\begin{align*}
+  d_{k} | \sigma^{2}, \left\{w_{k1}\ldots,w_{kn_{k}}\right\}, \sigma^{2}_{w,k}, (\sigma^{-2}_{d,k}\approx{}0) \simapprox
+   N\left(\bar{w}_{k},\frac{\sigma^{2}\sigma_{w,k}^{2}}{n_{k}}\right) ,
+\end{align*}
+where $\bar{w}_{k}=\sum_{m}w_{km}$. For levels with a high degree of shrinkage, the posterior for $d_{k}$ is concentrated around zero. For the time being, lets just consider $\Sigma_{d}$ (and possibly $\Sigma_{w}$ as well) to be specified by the analyst. This version of the full model has parameters $\theta=\left\{\psi,\eta,\sigma^{2},\Sigma_{w}\right\}$ depending upon how the wavelet coefficients are modeled. The likelihood is given by:
+\begin{align}
+ p(y,w,d|\theta) &\propto p(y|w,\eta,\sigma^{2})p(w|\sigma^{2},d,\Sigma_{w})p(d) , \\
+ \Rightarrow{} \qquad p(y|\theta) &= \int{}p(y,f,d|\theta)df\,dd ,
+\end{align}
+again, the full Bayesian version simply requires a prior on all components of $\theta$ and may be preferable. 
+\begin{align}
+\label{joint_posterior} 
+ p(w,d,\theta|y) &\propto p(y|w,\eta,\psi)p(w|\sigma^{2},d,\Sigma_{w})p(d)p(\sigma^{2},\eta,\Sigma_{w}) ,  \\
+ \Rightarrow{} \qquad p(\theta|y) &= \int{}p(w,d,\theta|y)df\,dd ,
+\end{align}
+The form of~\eqref{joint_posterior} lends itself to a natural Gibbs sampler of the form:
+\begin{align*}
+ \left[\sigma^{2}|w,\eta\right] , \quad
+ \left[\eta|\sigma^{2},f\right] , \quad
+ \left[w|d,\eta,\sigma^{2},\Sigma^{2}_{w}\right] , \quad
+ \left[d|w,\sigma^{2},\Sigma^{2}_{w}\right] , \quad 
+ \left[\Sigma^{2}_{w}|\sigma^{2},d,w\right] ,
+\end{align*}
+where the conditioning on $y$ throughout is dropped for brevity. 
+%Let us briefly describe each of the Gibbs updates:
+%\begin{itemize}
+%\item Sampling from $\psi|f,\eta$: This just amounts to sampling from the posterior distribution of the covariance parameters of a Gaussian process. If the covariance is diagonal then, with a conjugate prior, $\psi$ can be sampled exactly (Inverse-$\chi^{2}$). If $\psi$ includes covariance parameters then this can be done using e.g., MH. 
+%\item Sampling from $\eta|\psi,f$: This will not be in closed form and other methods (e.g., MH) will be needed. Intuitively, varying $\eta$ given $f$ varies the value of $m(t)$, so values of $\eta$ that yield $m$ to be an appropriate mean for $y$ (given $\psi$) will be favored. Likely to be the most challenging step to effectively explore the posterior.
+%\item Sampling from $f|d,\eta,\psi,\Sigma^{2}_{w}$: Since $f$ is sandwiched within the multilevel model, the \lq{}prior\rq{} on $f$ is multivariate normal, and $f$ appears linearly in the \lq{}likelihood\rq{}, this will also be multivariate normal (albeit with some linear algebra and an inverse DWT required to compute the mean and variance). 
+%\item Sampling from $d|f,\Sigma^{2}_{w}$: This is just multivariate normal. The current value of $f$ is transformed to the wavelet domain, and then the mean of $d$ is given by a shrunken version of the wavelet coefficients corresponding to the shrinkage induced by the relative weights of $\Sigma^{2}_{w}$ and $\Sigma^{2}_{d}$. 
+%\item Sampling from $\Sigma^{2}_{w}|d,f$: This just amounts to sampling from the posterior distribution of the covariance parameters of a multivariate normal. If the covariance is diagonal (which it will be) or fully unstructured then, with a conjugate prior this can be sampled exactly (Inverse-$\chi^{2}$). For parametrized non-diagonal matrices it can be sampled using e.g., MH.
+%\end{itemize}
+To make things more concrete, consider the special case with $n$ evenly-spaced osbervations, with no missing data, 
+\begin{gather*}
+ \Sigma_{\epsilon}(\psi) = \sigma^{2}I , \qquad \Sigma_{d} = \textrm{diag}\left(\sigma^{2}_{d,1},\ldots,\sigma^{2}_{d,1},\sigma^{2}_{d,2},\ldots,\sigma^{2}_{d,J}\right) , \\
+ \Sigma_{w} = \sigma^{2}\textrm{diag}\left(\sigma^{2}_{w,1},\ldots,\sigma^{2}_{w,1},\sigma^{2}_{w,2},\ldots,\sigma^{2}_{w,J}\right) ,
+\end{gather*}
+where the elements of $\Sigma_{d}$ are specified constants. For this model we have:
+\begin{align*}
+y|f,\eta,\sigma^{2}\sim N\left(f-q(\eta),\sigma^{2}I\right) .
+\quad \Rightarrow \quad
+\mathcal{W}^{T}y | w \sim N\left(w-\mathcal{W}^{T}q(\eta),\sigma^{2}I\right) ,
+\end{align*}
+since $w=\mathcal{W}^{T}f$, $\mathcal{W}^{T}$ is the DWT and $\mathcal{W}^{T}\mathcal{W}=I$. Additionally:
+\begin{align*}
+w|d,\sigma^{2},\Sigma_{w} \sim N\left(\mathbf{d},\sigma^{2}\Sigma_{w}\right) ,
+\end{align*}
+ Therefore, we can integrate out $w$:
+\begin{align*}
+\mathcal{W}^{T}y | \sim N\left(\mathbf{d}-\mathcal{W}^{T}q,\sigma^{2}\left[I+\Sigma_{w}\right]\right) .
+\end{align*}
+Similarly, we can also integrate out $d$:
+\begin{align*}
+\mathcal{W}^{T}y | \sim N\left(Am_{d}-\mathcal{W}^{T}q,\sigma^{2}\left[I+\Sigma_{w}+\Sigma_{\mathbf{d}}\right]\right) .
+\end{align*}
+where $m_{d}$ is a non-zero elements for the scaling coefficients, followed by zeros. Note that $\Sigma_{\mathbf{d}}=A\Sigma_{d}A^{T}$ is just a diagonal matrix with elements $d_{j}$ repeated on the diagonal $n_{j}$ times each. Some useful extra notation is to let
+\begin{align*}
+\tilde{w} = \mathcal{W}^{T}(y+q) 
+\end{align*}
+denote the  DWT of $y+q$. 
+Full details of the sampling procedure for this special case are given below:
+\begin{itemize}
+\item Sampling from $\sigma^{2}|d,\eta,\Sigma_{w}$: With a conjugate prior $\sigma^{2}\sim\textrm{Inv-}\chi^{2}(\nu_{0},s_{0}^{2})$ on $\sigma^{2}$ we can integrate out $w$ to obtain the partially marginalized posterior:
+\begin{align*}
+ \sigma^{2} | d,\eta,\Sigma_{w} \sim \textrm{Inv-}\chi^{2}(\nu_{n},s_{n}^{2}) ,
+\end{align*} 
+where 
+\begin{align*}
+ \nu_{n} = \nu_{0} + n , \qquad s_{n}^{2} = \frac{\nu_{0}s_{0}^{2}+(\tilde{w}-\mathbf{d})^{T}\left(I+\Sigma_{w}\right)^{-1}(\tilde{w}-\mathbf{d})}{\nu_{n}} 
+  = \frac{\nu_{0}s_{0}^{2}+\sum_{j,k}\frac{(\tilde{w}_{jk}-d_{j})^{2}}{1+\sigma_{w,j}^{2}}}{\nu_{0}+n} .
+\end{align*}
+Also integrating out $d$:
+\begin{align*}
+ \sigma^{2} | \eta,\Sigma_{w} \sim \textrm{Inv-}\chi^{2}(\nu_{n},s_{n}^{2}) ,
+\end{align*} 
+where 
+\begin{align*}
+ \nu_{n} = \nu_{0} + n , \qquad s_{n}^{2} = \frac{\nu_{0}s_{0}^{2}+(\tilde{w}-Am_{d})^{T}\left(I+\Sigma_{w}+\Sigma_{d}\right)^{-1}(\tilde{w}-Am_{d})}{\nu_{n}} 
+  = \frac{\nu_{0}s_{0}^{2}+\sum_{j,k}\frac{(\tilde{w}_{jk}-m_{d,j})^{2}}{1+\sigma_{w,j}^{2}+\sigma_{d,j}^{2}}}{\nu_{0}+n} .
+\end{align*}
+\item Sampling from $\eta|\sigma^{2},f$: This will not be in closed form and other methods (e.g., MH) will be needed. Intuitively, varying $\eta$ given $f$ varies the value of $m(t)$, so values of $\eta$ that yield $m$ to be an appropriate mean for $y$ (given $\psi$) will be favored.
+\item Sampling from $w|d,\eta,\sigma^{2},\Sigma_{w}$: Since $w=\mathcal{W}^{T}f$ we obtain:
+\begin{align*}
+ w| y,d,\Sigma_{w} &\sim N\left(m_{w},V_{w}\right) , \\
+ V_{w}^{-1} &= \frac{1}{\sigma^{2}}\left[\Sigma_{w}^{-1} + I\right] ,\\
+ m_{w} &= \frac{1}{\sigma^{2}}V_{w}\left[ \Sigma_{w}^{-1}d + \tilde{w}\right] .
+\end{align*}
+This simplifies to:
+\begin{align*}
+ V_{w} &= \sigma^{2}\textrm{diag}\left(\frac{\sigma^{2}_{w,1}}{1+\sigma^{2}_{w,1}} , \ldots ,
+ \frac{\sigma^{2}_{w,k}}{1+\sigma^{2}_{w,k}} \right) , \\
+  m_{w} &=  \textrm{diag}\left(\frac{\sigma^{2}_{w,1}}{1+\sigma^{2}_{w,1}}\left(\frac{d_{1}}{\sigma^{2}_{w,1}} + \tilde{w}_{1,1}\right) , \ldots ,
+ \frac{\sigma^{2}_{w,k}}{1+\sigma^{2}_{w,k}}\left(\frac{d_{J}}{\sigma^{2}_{w,J}} + \tilde{w}_{J,n_{J}}\right) \right)  .
+\end{align*}
+Crucially, $V_{w}$ remains diagonal and thus no matrix factorization algorithms are required to sample the $w_{jk}$.
+\item Sampling from $d|w,\sigma^{2},\Sigma_{w}$: For this setting the posterior is:
+\begin{align*}
+  d_{k} | \left\{w_{k1},\ldots,w_{kn_{k}}\right\}, \sigma^{2}_{w,k}, \sigma^{2}_{d,k} \sim
+   N\left(\frac{ \frac{m_{d,k}}{\sigma^{2}_{d,k}} + \frac{\sum_{m}w_{km}}{\sigma^{2}\sigma^{2}_{w,k}} }{ {\frac{1}{\sigma^{2}_{d,k}}+\frac{n_{k}}{\sigma^{2}\sigma_{w,k}^{2}}} }, 
+   \frac{1}{\frac{1}{\sigma^{2}_{d,k}}+\frac{n_{k}}{\sigma^{2}\sigma_{w,k}^{2}}}\right) .
+\end{align*}
+ Note that both $\Sigma_{w}$ and $\Sigma_{d}$ are diagonal, so there are no matrix inversions in this step.
+\item Sampling from $\Sigma_{w}|\sigma^{2},d,w$: With independent conjugate priors on each $\sigma^{2}_{w,j}\sim\textrm{Inv-}\chi^{2}(\nu_{w,j,0},s_{w,j,0}^{2})$ on each $\sigma^{2}_{w,j}$ for $j=1,\ldots,J$ we obtain:
+\begin{align*}
+ \sigma^{2}_{w,j} | d,f \sim \textrm{Inv-}\chi^{2}(\nu_{w,j,n},s_{w,j,n}^{2}) ,
+\end{align*} 
+where 
+\begin{align*}
+ \nu_{w,j,n} = \nu_{w,0} + n_{j} , \qquad s^{2} = \frac{\nu_{w,0}s_{w,j,0}^{2}+\frac{1}{\sigma^{2}}(w_{j}-d_{j})^{T}(w_{j}-d_{j})}{\nu_{w,j,n}} .
+\end{align*}
+Here $n_{j}$ is the number of coefficients in level $j$ of the wavelet decomposition and $w_{j}$ and $d_{j}$ are the subcomponents of $w$ and $d$ corresponding to the wavelet coefficients at level $j$.
+\end{itemize}
+
+\subsection{Missing Data}
+The model outlined in the previous sections can be extended to handle missing data in the time domain. Let $t_{mis}=\left\{t_{mis,1},\ldots,t_{mis,n_{mis}}\right\}$ denote the set of time points for which the value of $Y(t)$ was not observed, similarly for $t_{obs}$. We introduce some new notation:
+\begin{align*}
+  y_{com} = y , \qquad
+  y_{mis} = \left(\begin{array}{c} y(t_{mis,1}) \\ y(t_{mis,2}) \\ \cdots \\ y(t_{mis,n_{mis}}) \end{array}\right) , \qquad
+  y_{obs} = \left(\begin{array}{c} y(t_{obs,1}) \\ y(t_{obs,2}) \\ \cdots \\ y(t_{obs,n_{mis}}) \end{array}\right) .
+\end{align*}
+Here $Y_{mis}$ becomes another latent variable to be integrated out in the posterior distribution. The full posterior from~\eqref{joint_posterior} then becomes:
+\begin{align}
+\label{joint_posterior_missing_data} 
+ p(f,d,y_{mis},\theta|y_{obs}) &\propto p(y_{com}|f,\eta,\psi)p(f|d,\Sigma^{2}_{w})p(d)p(\psi,\eta,\Sigma^{2}_{w}) ,  \\
+ \Rightarrow{} \qquad p(\theta|y_{obs}) &= \int{}p(f,d,y_{mis},\theta|y)df\,dd\,dy_{mis} .
+\end{align}
+The form of~\eqref{joint_posterior_missing_data} lends itself to a natural Gibbs sampler of the form:
+\begin{align*}
+ \left[y_{mis}|y_{obs},\psi,f\right] , \quad
+ \left[\psi|f,\eta,y_{com}\right] , \quad
+ \left[\eta|\psi,f,y_{com}\right] , \quad
+ \left[f|d,\eta,\psi,\Sigma^{2}_{w},y_{com}\right] , \quad
+ \left[d|f,\Sigma^{2}_{w}\right] , \quad 
+ \left[\Sigma^{2}_{w}|d,f\right] .
+\end{align*}
+where the conditioning on $y_{obs}$ and $y_{mis}$ is now made explicit throughout. Since all previous derivations hold for the complete data, the only additional sampling step is to sample $y_{mis}$ from the conditional posterior distribution. Fortunately, by standard normal theory, $Y_{mis}$ is just normal. Let $\Sigma_{\epsilon,oo}(\psi)$ and $\Sigma_{\epsilon,mm}(\psi)$ denote the submatrices of the covariance matrix $\Sigma_{\epsilon}(\psi)$ that correspond to the observed and missing matrices respectively. Similarly, let $\Sigma_{\epsilon,om}=\Sigma_{\epsilon,mo}^{T}$ denote the covariance matrix between the observed and missing portions of the data.  Let:
+\begin{align*}
+\mu_{obs} = (I-Q_{obs})f_{obs} , \qquad \mu_{mis} = (I-Q_{mis})f_{mis} ,
+\end{align*}
+where $Q_{obs}$, $Q_{mis}$, $f_{obs}$ and $f_{mis}$ are the subcomponents of $Q$ and $f$ corresponding to the observed and missing components respectively. The conditional distribution of $Y_{mis}$ can then be seen to be: 
+\begin{align*}
+ Y_{mis} | y_{obs}, \psi, f \sim N\left( \mu_{mis} + \Sigma_{\epsilon,mo}\Sigma_{\epsilon,}^{-1}(y_{obs}-\mu_{obs}), \Sigma_{\epsilon,mm} - \Sigma_{\epsilon,mo}\Sigma_{\epsilon,oo}^{-1}\Sigma_{\epsilon,om} \right) .
+\end{align*} 
+
+\subsection{Searching for Transits: Finding Candidate Period/Phase Configurations}
+
+\subsection{Using Metadata to Improve Performance}
+Any ideas?
+
+\subsection{Model Comparison}
+\begin{itemize}
+\item Ideas to \lq{}test\rq{} for presence of transits
+\item Stellar variability models. 
+\item Spacecraft event models (e.g., sudden pixel dropout)
+\end{itemize}
+
+\end{document} 
+
+
+
+
+
+
+
