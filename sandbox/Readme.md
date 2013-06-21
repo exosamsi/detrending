@@ -22,9 +22,9 @@ Other light curves of interest:
 
 http://bbq.dfm.io/~mrtommyb/ascii_inj/ascii_inj_gstars.tgz
 
--- Dan Foreman-Mackay's injected light curves:
+-- Dan Foreman-Mackey's injected light curves:
 
-(not sure where these are...?)
+http://bbq.dfm.io/ ??? (not sure where these are...?)
 
 
 ===================
