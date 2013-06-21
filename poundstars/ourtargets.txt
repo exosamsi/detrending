@@ -1,4 +1,4 @@
-Kepler_ID	Module_0	Module_1	Module_2	Module_3	mult?	pergt50?
+Kepler_ID
 2443393
 2449431
 3942670
