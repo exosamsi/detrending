@@ -244,6 +244,10 @@ but it is made from the two diagonal tensors $\noisetensor$ and $\wavetensor$,
 each of which is diagonal (but in different bases).  Some notes:
 
 \textsl{(a)}~%
+Although we don't explicitly show the integral over the vector $\wavevec$ of amplitudes,
+it is included implicitly in the marginalized likelihood $p(\datavec\given\exopars,\hyperpars)$;
+the integral is a convolution of Gaussians,
+which produces a Gaussian with broader variance.
 In this way of thinking about it, the wavelet-amplitude diagonal
 variance tensor $\wavetensor$ is part of the hyperparameter blob
 $\hyperpars$.
@@ -299,7 +303,7 @@ My proposal---it can't be described as ``our proposal'' just yet---%
 is to do the following violence to the model to keep the core ideas,
 but make it tractable, at the cost of strengthening or distorting some assumptions.
 
-\warning{Going to work on the Untrendied SAP data.
+\warning{Going to work on the SAP data.
          Explain why}
 
 \warning{Turning Untrendy knobs to 11.
