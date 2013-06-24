@@ -1,3 +1,12 @@
+% notes:
+% ------
+% - use symbol macros, not letters, in equations
+% - use \eqnarray not \equation
+
+% to-do:
+% ------
+% - 
+
 \documentclass[12pt,letterpaper]{article}
 
 % close up itemize
@@ -47,11 +56,15 @@
 
 \begin{document}\sloppy\sloppypar
 
-\section*{A partially marginalized likelihood for exoplanet inference}
+\section*{A partially marginalized likelihood\\
+          for exoplanet inference}
 
 \noindent
-David W. Hogg (NYU) \\
-\textit{with help from Paul Baines (Davis) and everyone else at SAMSI \Kepler}
+David W. Hogg (NYU CCPP, MPIA) \\
+Paul Baines (UC Davis) \\
+Rebekah Dawson (CfA, Berkeley) \\
+Daniel Foreman-Mackey (NYU CCPP) \\
+\warning{with help from everyone at SAMSI Kepler (exoSAMSI)}
 
 \paragraph{disclaimer:}
 \warning{This document is a draft, and not yet ready for public consumption.
@@ -211,7 +224,7 @@ p(\datavec\given\exopars,\hyperpars)
   &\equiv& \meanflux\,[\onevec - \exovec]
 \\
 \vartensor
-  &\equiv& \noisetensor + \weightmatrix\cdot\transpose{\wavetensor}\cdot{\weightmatrix}
+  &\equiv& \noisetensor + \transpose{\weightmatrix}\cdot\wavetensor\cdot{\weightmatrix}
 \label{eq:variance}
 \quad ,
 \end{eqnarray}
@@ -219,7 +232,8 @@ where
 $\meanvec$ and $\vartensor$ are the mean vector and variance tensor of the Gaussian Process,
 $\meanflux$ is the mean stellar flux,
 $\onevec$ is the $N$-dimensional vector of ones (unities),
-$\exovec$ is the column vector made up of the $\exofn(t_n\given\exopars)$ values,
+$\exovec$ is the column vector made up of the $\exofn(t_n\given\exopars)$ values
+describing the attenuation caused by the transiting planet,
 $\noisetensor$ is the diagonal noise variance tensor with $\variance_n$ values down the diagonal,
 $\weightmatrix$ is the linear operator that transforms points
 from the (natural) time basis to the wavelet basis,
@@ -233,11 +247,15 @@ but it is made from the two diagonal tensors $\noisetensor$ and $\wavetensor$,
 each of which is diagonal (but in different bases).  Some notes:
 
 \textsl{(a)}~%
+Although we don't explicitly show the integral over the vector $\wavevec$ of amplitudes,
+it is included implicitly in the marginalized likelihood $p(\datavec\given\exopars,\hyperpars)$;
+the integral is a convolution of Gaussians,
+which produces a Gaussian with broader variance.
 In this way of thinking about it, the wavelet-amplitude diagonal
 variance tensor $\wavetensor$ is part of the hyperparameter blob
 $\hyperpars$.
-With an additional hyperparameters in this blob,
-and choices about hyperpriors on the hyperpriors,
+With additional hyperparameters in this blob,
+and choices about hyperpriors on the hyperparameters,
 the variability model itself can be marginalized out.
 This may indeed become one of our goals below.
 
@@ -245,12 +263,13 @@ This may indeed become one of our goals below.
 The form (\ref{eq:variance}) for the variance tensor assumes diagonality
 but does not yet capitalize on the frequency and location of the wavelets.
 The idea that the variances will depend on the freqency index but \emph{not} the location index.
-That means that diagonal tensor $\wavetensor$ will have repeated elements; the number of
-free parameters will be far smaller than the number of wavelet amplitudes in $\wavevec$.
+That means that diagonal tensor $\wavetensor$ will have repeated elements;
+the number of free parameters in $\wavetensor$
+will be far smaller than the number of wavelet amplitudes in $\wavevec$.
 
 \textsl{(c)}~%
 For many wavelet bases, the number $K$ of distinct frequencies $k$ is only of order $\log_2(N)$,
-where $N$ is the number of parameters.
+where $N$ is the number of data points in the lightcurve.
 This means that even a non-parametric form for $\wavetensor$
 will only grow logarithmically with the size of the data set.
 
@@ -268,7 +287,8 @@ both by removing rows that correspond to wavelet scales at which we expect no po
 (more on this below),
 and by removing columns that correspond to data locations at which there are no observations
 (vanishing $1/\variance_n$).
-Finally, If we drop columns that correspond to contiguous intervals of data locations,
+Finally, If we drop columns in blocks
+(corresponding to contiguous intervals of data locations),
 there will in general be some ``unsupported'' wavelet components.
 These orphaned rows ought to also be dropped to keep relevant matrices full-rank.
 These changes break orthonormality and completeness of the basis,
@@ -280,14 +300,10 @@ the wavelet basis $\weightmatrix$ as fixed,
 but parameterize and permit to be fit the Gaussian Process variance tensor $\wavetensor$,
 parameterized in a form that makes the variances sensitive to scale but not location.
 
-\section{\Kepler\ specifics}
+\section{\Kepler\ lightcurve specifics}
 
-My proposal---it can't be described as ``our proposal'' just yet---%
-is to do the following violence to the model to keep the core ideas,
-but make it tractable, at the cost of strengthening or distorting some assumptions.
-
-\warning{Going to work on the Untrendied SAP data.
-         Explain why}
+\warning{Going to work on the SAP data.
+         Explain why.}
 
 \warning{Turning Untrendy knobs to 11.
          We don't want any discontinuities or artifacts.}
@@ -303,6 +319,13 @@ of the $\weightmatrix$, for the purposes of computing the \emph{exoplanet transi
 treat the data as coming from the true, non-uniform grid in BJD.
 That is, we will be able to use ``out of the box'' code to generate the wavelet transform
 matrix $\weightmatrix$.
+
+\warning{Our non-parametric form for $\wavetensor$ is just to give one variance $\variance_k$
+         to every wavelet frequency scale $k$.
+         That's the most flexible possible model;
+         it only has of order $\log_2(N)$ parameters.}
+
+\warning{Let's show here that the wavelet coefficients do have low autocorrelation amplitude.}
 
 \section{Search}
 
@@ -321,6 +344,34 @@ matrix $\weightmatrix$.
 
 \section{Discussion}
 
-\warning{foo}
+\warning{Most astrophysical data are generated by processes that are a mixture of
+         stochastic and deterministic signals.
+         We need to learn more about stochastic models.
+         This project is a baby step towards this.}
+
+\warning{We only considered transit and lightcurve data.
+         Does this have anything to do with radial velocities?
+         Of course it does.
+         Ideas about modeling low-Q oscillations.}
+
+\warning{We just \emph{made up} a wavelet basis and the data looked pretty uncorrelated in this basis.
+         That's just lucky.
+         In principle a more rigid GP concept could be explicitly diagonalized.
+         More speculatively, we could \emph{learn the basis}.
+         This is related to sparse coding and dictionary methods.}
+
+\warning{We only looked at a tiny fraction of the available data.
+         We only looked at a tiny fraction of the possible exoplanets in those data.
+         Let's scale up!}
+
+\paragraph{Acknowledgements:}
+It is a pleasure to thank Eric Ford for organizing the workshop that got this started.
+
+\warning{Yann LeCun}
+
+\warning{It is a pleasure to thank SAMSI...}
+
+\section*{Bibliography}
+
 
 \end{document}
