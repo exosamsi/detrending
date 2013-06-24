@@ -1,0 +1,45 @@
+Minutes, Monday 24th June. 
+
+List of potential papers
+
+1. Detrending paper - technique comparison. 
+    - New detrending methods (polynomial + transit, notched median filter)
+    - 10,000 stars in Gal's sample have been detrended. Dan injected planets into these lcs.
+    - Gal is going to detrend Bekki's stars.
+    - Billy / Ben to write this up
+
+2. Detections / limits on a subset of stars. 
+   - Gal's sample, planets with planets already detected (Bekki's sample)
+   - Earth-like detections
+   - Ruth / Bekki to write this up
+
+3. Fitting / detrending using wavelets and GPs. 
+   - Hannu to (jointly?) write this up
+
+4. Wavelet likelihood function.
+   - Baines writing up?
+
+SAMPLES
+
+Gal's sample - detrending/gtype
+    - List of KIC numbers for stars lying in a circle in colour - colour space around the sun
+    -Link to Dan's detrended / injection version of Gal's stars. 
+
+detrending / sandbox/ README
+    - Jessie's sample.
+
+Tom injected into Gal's and Jessie's sample. 
+Dan only injected into gal's sample. 
+
+Bekki's sample all have planets already.
+
+Mary-Beth to give a tutorial on Gaussian Processes, Ruth will make some plots/ maybe run through some code.
+
+Bekki will give a tutorial on wavelets. 
+
+Everyone is going to put an outline of their paper/section on Github later today.
+
+
+
+
+
