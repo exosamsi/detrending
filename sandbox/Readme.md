@@ -26,6 +26,10 @@ http://bbq.dfm.io/~mrtommyb/ascii_inj/ascii_inj_gstars.tgz
 
 http://bbq.dfm.io/~dfm/research/bart/examples/injection/data/
 
+-- Gal's detrended LC using median filter
+
+http://bbq.dfm.io/~dfm/research/bart/examples/injection/data_detrended_mf/
+
 
 ===================
 Tom's light curve description:
