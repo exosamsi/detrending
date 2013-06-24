@@ -24,7 +24,7 @@ http://bbq.dfm.io/~mrtommyb/ascii_inj/ascii_inj_gstars.tgz
 
 -- Dan Foreman-Mackey's injected light curves:
 
-http://bbq.dfm.io/ ??? (not sure where these are...?)
+http://bbq.dfm.io/~dfm/research/bart/examples/injection/data/
 
 
 ===================
