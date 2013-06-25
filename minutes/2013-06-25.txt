@@ -1,0 +1,20 @@
+Minutes, Tuesday 25th of June
+
+Ruth is going to find bls detection limits. 
+
+Billy is having trouble with the median filtered data because there are big spikes in it. He is going to cut out the spikes. He is going to check that it is the median filter that is producing these jumps. 
+
+Billy folded a light curve on Dan's 'Truth' period and can see a transit by eye.
+
+Bekki has another median filter that she is applying to segments of the data, separated by 0.1 days and by jumps of 10^-3 in flux. For each data segment she goes through with a window that is~ 72 points wide (around transit timescale). She throws away anything less than 72 points from the ends. 
+
+Bekki is doing a wavelet bls - it maximises wavelet likelihood instead of minimising chi-squared. It needs a good first guess though - could get this from bls? 
+
+Hannu is working on another detrending method. He is using wavelets to detect jumps and can then reject periods that correspond to jump timescales. He uses splines with high resolution at the start of jumps, then course resolution in the middle. He says this method seems to work well for a couple of planets, but he is not sure whether it will be better than any other method. 
+
+He has applied it to some of Tom's injected planets. 
+
+Bekki - is this detrending method keeping the transit in tact? 
+
+Hannu - yes? but has only tested it on 3 cases so far. 
+
